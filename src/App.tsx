@@ -124,7 +124,6 @@ export default function App() {
     Ver cómo funciona
   </a>
 </div>
-          </div>
           <div className="relative">
             <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
               <div className="flex items-center gap-4">
