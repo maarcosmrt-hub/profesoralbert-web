@@ -319,8 +319,8 @@ En la pizarra verás un ejemplo y luego un mini-reto. ¡Vamos paso a paso!`;
       </section>
 
       {/* FAQ */}
-      <section id="faq" className="max-w-6xl mx-auto px-4 py-12">
-        <h3 className="text-2xl font-semibold">FAQ</h3>
+      <section id="preguntas" className="max-w-6xl mx-auto px-4 py-12">
+  <h3 className="text-2xl font-semibold">Preguntas frecuentes</h3>
         <div className="mt-4 space-y-3">
           <details className="p-4 rounded-2xl border bg-white/80 backdrop-blur-sm shadow-sm">
             <summary className="cursor-pointer font-medium">¿Los vídeos son automáticos?</summary>
