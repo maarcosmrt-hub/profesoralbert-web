@@ -341,7 +341,7 @@ En la pizarra verás un ejemplo y luego un mini-reto. ¡Vamos paso a paso!`;
           <p>© {new Date().getFullYear()} Profesor Albert · Prototipo UI</p>
           <div className="flex gap-4">
             <a href="#" className="hover:text-blue-600">Inicio</a>
-            <a href="#demo" className="hover:text-blue-600">Demo</a>
+            <a href="#ejemplo" className="hover:text-blue-600">Ejemplo</a>
             <a href="mailto:contacto@tudominio.com" className="hover:text-blue-600">Contacto</a>
           </div>
         </div>
