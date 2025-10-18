@@ -104,20 +104,14 @@ En la pizarra verás un ejemplo y luego un mini-reto. ¡Vamos paso a paso!`;
             </ul>
 
             {/* CTA */}
-            <div className="mt-4 flex gap-3">
-              <a
-                href="#demo"
-                className="px-4 py-2 rounded-xl bg-blue-600 text-white hover:bg-blue-700 shadow"
-              >
-                Probar la demo
-              </a>
-              <a
-                href="#como-funciona"
-                className="px-4 py-2 rounded-xl border border-slate-300 hover:bg-slate-100"
-              >
-                Ver cómo funciona
-              </a>
-            </div>
+           <div className="mt-4 flex gap-3">
+  <a href="#ejemplo" className="px-4 py-2 rounded-xl bg-blue-600 text-white hover:bg-blue-700 shadow">
+    Ver ejemplo
+  </a>
+  <a href="#como-funciona" className="px-4 py-2 rounded-xl border border-slate-300 hover:bg-slate-100">
+    Ver cómo funciona
+  </a>
+</div>
           </div>
 
           {/* Tarjeta Albert */}
