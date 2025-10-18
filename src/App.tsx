@@ -67,12 +67,12 @@ En la pizarra verás un ejemplo y luego un mini-reto. ¡Vamos paso a paso!`;
             </div>
           </div>
 
-          <nav className="hidden md:flex items-center gap-6 text-sm">
-            <a className="hover:text-blue-600 transition-colors" href="#como-funciona">Cómo funciona</a>
-            <a className="hover:text-blue-600 transition-colors" href="#demo">Demo</a>
-            <a className="hover:text-blue-600 transition-colors" href="#precios">Precios</a>
-            <a className="hover:text-blue-600 transition-colors" href="#faq">FAQ</a>
-          </nav>
+         <nav className="hidden md:flex items-center gap-6 text-sm">
+  <a className="hover:text-blue-600 transition-colors" href="#como-funciona">Cómo funciona</a>
+  <a className="hover:text-blue-600 transition-colors" href="#ejemplo">Ejemplo</a>
+  <a className="hover:text-blue-600 transition-colors" href="#precios">Precios</a>
+  <a className="hover:text-blue-600 transition-colors" href="#preguntas">Preguntas frecuentes</a>
+</nav>
 
           <div className="flex items-center gap-2">
             <a className="px-3 py-1.5 rounded-xl border border-slate-300 hover:bg-slate-100 text-sm" href="#">
