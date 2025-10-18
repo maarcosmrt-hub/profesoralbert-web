@@ -110,6 +110,20 @@ export default function App() {
               </li>
               <li>• Tono: {tone}.</li>
             </ul>
+           <div className="mt-6 flex gap-3">
+  <a
+    href="#demo"
+    className="px-4 py-2 rounded-xl bg-blue-600 text-white hover:bg-blue-700 shadow"
+  >
+    Probar la demo
+  </a>
+  <a
+    href="#como-funciona"
+    className="px-4 py-2 rounded-xl border border-slate-300 hover:bg-slate-100"
+  >
+    Ver cómo funciona
+  </a>
+</div>
             <div className="mt-6 flex gap-3">
               <a
                 href="#demo"
