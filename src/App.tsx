@@ -161,8 +161,8 @@ En la pizarra verás un ejemplo y luego un mini-reto. ¡Vamos paso a paso!`;
       </section>
 
       {/* Demo */}
-      <section id="demo" className="max-w-6xl mx-auto px-4 py-12">
-        <h3 className="text-2xl font-semibold">Demo</h3>
+     <section id="ejemplo" className="max-w-6xl mx-auto px-4 py-12">
+  <h3 className="text-2xl font-semibold">Ejemplo</h3>
 
         {/* Paso 1 */}
         <div className="mt-4 p-5 rounded-2xl border bg-white/80 backdrop-blur-sm shadow-sm">
