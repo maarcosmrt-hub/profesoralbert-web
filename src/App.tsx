@@ -132,7 +132,6 @@ export default function App() {
                   <p className="text-sm text-slate-500">Profesor virtual</p>
                   <h3 className="text-lg font-semibold">Albert</h3>
                 </div>
-              </div>
               <div className="mt-4 rounded-2xl bg-slate-50 border border-slate-200 p-4">
                 <p className="text-sm text-slate-600">
                   “Explicaciones claras con pizarra digital.”
