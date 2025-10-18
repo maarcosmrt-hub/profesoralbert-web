@@ -124,11 +124,6 @@ export default function App() {
     Ver cómo funciona
   </a>
 </div>
-            <div className="mt-6 flex gap-3">
-              <a
-                href="#demo"
-                className="px-4 py-2 rounded-xl bg-blue-600 text-white hover:bg-blue-700 shadow"
-              >
           </div>
           <div className="relative">
             <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
