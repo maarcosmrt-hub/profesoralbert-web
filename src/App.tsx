@@ -52,9 +52,7 @@ export default function App() {
       <header className="sticky top-0 z-30 backdrop-blur bg-white/70 border-b border-slate-200">
         <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-blue-600 grid place-items-center text-white font-bold shadow-sm">
-              A
-            </div>
+           <img src="/albert.png" alt="Profesor Albert" className="w-10 h-10 rounded-2xl object-cover shadow-sm" />
             <div>
               <h1 className="text-lg font-semibold">Profesor Albert</h1>
               <p className="text-xs text-slate-500 -mt-0.5">
@@ -130,9 +128,7 @@ export default function App() {
           <div className="relative">
             <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
               <div className="flex items-center gap-4">
-                <div className="w-16 h-16 rounded-2xl bg-blue-600/90 grid place-items-center text-white text-xl font-bold shadow">
-                  A
-                </div>
+               <img src="/albert.png" alt="Profesor Albert" className="w-16 h-16 rounded-2xl object-cover shadow" />
                 <div>
                   <p className="text-sm text-slate-500">Profesor virtual</p>
                   <h3 className="text-lg font-semibold">Albert</h3>
