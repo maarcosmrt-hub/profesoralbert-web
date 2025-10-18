@@ -140,8 +140,7 @@ export default function App() {
               </div>
               <div className="mt-4 rounded-2xl bg-slate-50 border border-slate-200 p-4">
                 <p className="text-sm text-slate-600">
-                  “Tranquilo, esto parece difícil, pero verás que es fácil.
-                  Vamos paso a paso.”
+                  “Explicaciones claras con pizarra digital.”
                 </p>
               </div>
               <div className="mt-4 grid grid-cols-3 gap-2 text-center text-xs">
