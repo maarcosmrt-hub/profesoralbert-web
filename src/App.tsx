@@ -257,7 +257,7 @@ En la pizarra verás un ejemplo y luego un mini-reto. ¡Vamos paso a paso!`;
                 disabled={loading}
                 className="px-4 py-2 rounded-xl border hover:bg-slate-100"
               >
-                Generar vídeo (demo)
+                Generar vídeo (ejemplo)
               </button>
               <button className="px-4 py-2 rounded-xl border hover:bg-slate-100" title="Demo">
                 Descargar MP4
