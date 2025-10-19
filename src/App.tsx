@@ -6,9 +6,10 @@ export default function App() {
   const [inputMode, setInputMode] = useState<"paste" | "file">("paste");
   const [rawNotes, setRawNotes] = useState("");
   const [script, setScript] = useState("");
-  const [tone, setTone] = useState("claro y motivador");
-  const [subject, setSubject] = useState("Matemáticas");
-  const [level, setLevel] = useState("Bachillerato");
+  // Placeholders vacíos para selects
+  const [tone, setTone] = useState("");
+  const [subject, setSubject] = useState("");
+  const [level, setLevel] = useState("");
   const [loading, setLoading] = useState(false);
   const [videoUrl, setVideoUrl] = useState("");
   const [autoVideo, setAutoVideo] = useState(true);
@@ -27,33 +28,35 @@ Explicación paso a paso:
 4) Resumen en una frase.`;
   };
 
- const handleGenerateScript = async () => {
-  setLoading(true);
-  await new Promise((r) => setTimeout(r, 700));
+  const handleGenerateScript = async () => {
+    setLoading(true);
+    await new Promise((r) => setTimeout(r, 700));
 
-  const s = `Hola, soy el Profesor Albert. Hoy trabajaremos ${subject.toLowerCase()} a nivel ${level}.
+    const subjText = subject ? subject.toLowerCase() : "la asignatura que elijas";
+    const levelText = level || "el nivel que elijas";
+
+    const s = `Hola, soy el Profesor Albert. Hoy trabajaremos ${subjText} a nivel ${levelText}.
 
 ${demoExplain(rawNotes)}
 
 En la pizarra verás un ejemplo y luego un mini-reto. ¡Vamos paso a paso!`;
-  setScript(s);
-  setLoading(false);
-  setStep(2);
+    setScript(s);
+    setLoading(false);
+    setStep(2);
 
-  // Si el usuario quiere, generamos el vídeo automáticamente
-  if (autoVideo) {
-    setTimeout(() => {
-      handleGenerateVideo();
-    }, 300);
-  }
-};
-
+    // Si el usuario quiere, generamos el vídeo automáticamente
+    if (autoVideo) {
+      setTimeout(() => {
+        handleGenerateVideo();
+      }, 300);
+    }
+  };
 
   const handleGenerateVideo = async () => {
     setLoading(true);
     setVideoUrl("");
     await new Promise((r) => setTimeout(r, 1200));
-    setVideoUrl("mock://albert-video-demo");
+    setVideoUrl("mock://albert-video-ejemplo");
     setLoading(false);
     setStep(3);
   };
@@ -77,18 +80,18 @@ En la pizarra verás un ejemplo y luego un mini-reto. ¡Vamos paso a paso!`;
             </div>
           </div>
 
-         <nav className="hidden md:flex items-center gap-6 text-sm">
-  <a className="hover:text-blue-600 transition-colors" href="#como-funciona">Cómo funciona</a>
-  <a className="hover:text-blue-600 transition-colors" href="#ejemplo">Ejemplo</a>
-  <a className="hover:text-blue-600 transition-colors" href="#precios">Precios</a>
-  <a className="hover:text-blue-600 transition-colors" href="#preguntas">Preguntas frecuentes</a>
-</nav>
+          <nav className="hidden md:flex items-center gap-6 text-sm">
+            <a className="hover:text-blue-600 transition-colors" href="#como-funciona">Cómo funciona</a>
+            <a className="hover:text-blue-600 transition-colors" href="#ejemplo">Ejemplo</a>
+            <a className="hover:text-blue-600 transition-colors" href="#precios">Precios</a>
+            <a className="hover:text-blue-600 transition-colors" href="#preguntas">Preguntas frecuentes</a>
+          </nav>
 
           <div className="flex items-center gap-2">
             <a className="px-3 py-1.5 rounded-xl border border-slate-300 hover:bg-slate-100 text-sm" href="#">
               Entrar
             </a>
-            <a className="px-3 py-1.5 rounded-xl bg-blue-600 text-white hover:bg-blue-700 text-sm" href="#demo">
+            <a className="px-3 py-1.5 rounded-xl bg-blue-600 text-white hover:bg-blue-700 text-sm" href="#ejemplo">
               Probar gratis
             </a>
           </div>
@@ -114,14 +117,14 @@ En la pizarra verás un ejemplo y luego un mini-reto. ¡Vamos paso a paso!`;
             </ul>
 
             {/* CTA */}
-           <div className="mt-4 flex gap-3">
-  <a href="#ejemplo" className="px-4 py-2 rounded-xl bg-blue-600 text-white hover:bg-blue-700 shadow">
-    Ver ejemplo
-  </a>
-  <a href="#como-funciona" className="px-4 py-2 rounded-xl border border-slate-300 hover:bg-slate-100">
-    Ver cómo funciona
-  </a>
-</div>
+            <div className="mt-4 flex gap-3">
+              <a href="#ejemplo" className="px-4 py-2 rounded-xl bg-blue-600 text-white hover:bg-blue-700 shadow">
+                Ver ejemplo
+              </a>
+              <a href="#como-funciona" className="px-4 py-2 rounded-xl border border-slate-300 hover:bg-slate-100">
+                Ver cómo funciona
+              </a>
+            </div>
           </div>
 
           {/* Tarjeta Albert */}
@@ -157,11 +160,11 @@ En la pizarra verás un ejemplo y luego un mini-reto. ¡Vamos paso a paso!`;
         <div className="grid md:grid-cols-3 gap-4 mt-4">
           <div className="p-5 rounded-2xl border bg-white/80 backdrop-blur-sm shadow-sm">
             <div className="font-semibold">1 · Pega tus apuntes</div>
-            <p className="text-sm text-slate-600 mt-1">Pega o sube tu texto. Albert crea el guion.</p>
+            <p className="text-sm text-slate-600 mt-1">Pega o sube tu texto.</p>
           </div>
           <div className="p-5 rounded-2xl border bg-white/80 backdrop-blur-sm shadow-sm">
-            <div className="font-semibold">2 · Genera el guion</div>
-            <p className="text-sm text-slate-600 mt-1">Definición, ejemplo, ejercicio guiado y resumen.</p>
+            <div className="font-semibold">2 · Preparamos el mensaje</div>
+            <p className="text-sm text-slate-600 mt-1">Generamos el mensaje del profesor a partir de tus notas.</p>
           </div>
           <div className="p-5 rounded-2xl border bg-white/80 backdrop-blur-sm shadow-sm">
             <div className="font-semibold">3 · Exporta el vídeo</div>
@@ -170,9 +173,9 @@ En la pizarra verás un ejemplo y luego un mini-reto. ¡Vamos paso a paso!`;
         </div>
       </section>
 
-      {/* Demo */}
-     <section id="ejemplo" className="max-w-6xl mx-auto px-4 py-12">
-  <h3 className="text-2xl font-semibold">Ejemplo</h3>
+      {/* Ejemplo */}
+      <section id="ejemplo" className="max-w-6xl mx-auto px-4 py-12">
+        <h3 className="text-2xl font-semibold">Ejemplo</h3>
 
         {/* Paso 1 */}
         <div className="mt-4 p-5 rounded-2xl border bg-white/80 backdrop-blur-sm shadow-sm">
@@ -204,16 +207,18 @@ En la pizarra verás un ejemplo y luego un mini-reto. ¡Vamos paso a paso!`;
           ) : (
             <div className="mt-3">
               <input type="file" className="block" />
-              <p className="text-xs text-slate-500 mt-1">* Demo: no se procesa, es solo UI.</p>
+              <p className="text-xs text-slate-500 mt-1">* Ejemplo: no se procesa, es solo UI.</p>
             </div>
           )}
 
+          {/* Selects con placeholder gris */}
           <div className="mt-3 grid sm:grid-cols-3 gap-3">
             <select
               value={subject}
               onChange={(e) => setSubject(e.target.value)}
-              className="rounded-xl border p-2"
+              className={`rounded-xl border p-2 ${subject ? "text-slate-900" : "text-slate-400"}`}
             >
+              <option value="" disabled>Asignatura</option>
               <option>Matemáticas</option>
               <option>Física</option>
               <option>Química</option>
@@ -224,8 +229,9 @@ En la pizarra verás un ejemplo y luego un mini-reto. ¡Vamos paso a paso!`;
             <select
               value={level}
               onChange={(e) => setLevel(e.target.value)}
-              className="rounded-xl border p-2"
+              className={`rounded-xl border p-2 ${level ? "text-slate-900" : "text-slate-400"}`}
             >
+              <option value="" disabled>Dificultad</option>
               <option>Primaria</option>
               <option>ESO</option>
               <option>Bachillerato</option>
@@ -235,50 +241,50 @@ En la pizarra verás un ejemplo y luego un mini-reto. ¡Vamos paso a paso!`;
             <select
               value={tone}
               onChange={(e) => setTone(e.target.value)}
-              className="rounded-xl border p-2"
+              className={`rounded-xl border p-2 ${tone ? "text-slate-900" : "text-slate-400"}`}
             >
+              <option value="" disabled>Modo</option>
               <option>claro y motivador</option>
               <option>formal y académico</option>
               <option>divertido y cercano</option>
             </select>
           </div>
+
           <label className="mt-2 flex items-center gap-2 text-sm text-slate-600">
-  <input
-    type="checkbox"
-    checked={autoVideo}
-    onChange={(e) => setAutoVideo(e.target.checked)}
-  />
-  Generar vídeo automáticamente tras el guion
-</label>
+            <input
+              type="checkbox"
+              checked={autoVideo}
+              onChange={(e) => setAutoVideo(e.target.checked)}
+            />
+            Generar vídeo automáticamente tras el mensaje
+          </label>
+
           <div className="mt-4">
-           <button
-  onClick={handleGenerateScript}
-  disabled={loading}
-  className="px-4 py-2 rounded-xl bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-60"
-  title={loading ? "Generando…" : undefined}
->
-  {loading ? "Generando guion…" : "Generar guion"}
-</button>
+            <button
+              onClick={handleGenerateScript}
+              disabled={loading}
+              className="px-4 py-2 rounded-xl bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-60"
+              title={loading ? "Preparando…" : undefined}
+            >
+              {loading ? "Preparando…" : "Mostrar mensaje del profesor"}
+            </button>
           </div>
         </div>
 
-        {/* Paso 2 */}
+        {/* Mensaje del profesor (antes “2) Guion”) */}
         {step >= 2 && (
           <div className="mt-4 p-5 rounded-2xl border bg-white/80 backdrop-blur-sm shadow-sm">
-            <div className="font-semibold">2) Guion</div>
+            <div className="font-semibold">Mensaje del profesor</div>
             <pre className="mt-2 whitespace-pre-wrap text-sm bg-slate-50 p-3 rounded-xl border">
-              {script || "Aquí aparecerá el guion generado."}
+              {script || "Aquí aparecerá el mensaje del profesor basado en tus apuntes."}
             </pre>
-            <div className="mt-3 flex gap-3">
+            <div className="mt-3">
               <button
                 onClick={handleGenerateVideo}
                 disabled={loading}
-                className="px-4 py-2 rounded-xl border hover:bg-slate-100"
+                className="px-4 py-2 rounded-xl bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-60"
               >
-                Generar vídeo (ejemplo)
-              </button>
-              <button className="px-4 py-2 rounded-xl border hover:bg-slate-100" title="Demo">
-                Descargar MP4
+                {loading ? "Preparando vídeo…" : "Generar vídeo"}
               </button>
             </div>
           </div>
@@ -290,7 +296,7 @@ En la pizarra verás un ejemplo y luego un mini-reto. ¡Vamos paso a paso!`;
             <div className="font-semibold">3) Resultado</div>
             {videoUrl ? (
               <div className="mt-2 text-sm text-slate-600">
-                Vídeo listo (demo): <code>{videoUrl}</code>
+                Vídeo listo (ejemplo): <code>{videoUrl}</code>
               </div>
             ) : (
               <div className="mt-2 text-sm text-slate-600">Renderizando…</div>
@@ -336,19 +342,42 @@ En la pizarra verás un ejemplo y luego un mini-reto. ¡Vamos paso a paso!`;
         </div>
       </section>
 
-      {/* FAQ */}
+      {/* Preguntas frecuentes */}
       <section id="preguntas" className="max-w-6xl mx-auto px-4 py-12">
-  <h3 className="text-2xl font-semibold">Preguntas frecuentes</h3>
+        <h3 className="text-2xl font-semibold">Preguntas frecuentes</h3>
         <div className="mt-4 space-y-3">
           <details className="p-4 rounded-2xl border bg-white/80 backdrop-blur-sm shadow-sm">
             <summary className="cursor-pointer font-medium">¿Los vídeos son automáticos?</summary>
             <p className="mt-2 text-sm text-slate-600">
-              En esta demo solo mostramos la interfaz y el guion. El render de vídeo se añadirá más adelante.
+              En este ejemplo solo mostramos la interfaz y el mensaje del profesor. El render de vídeo se añadirá más adelante.
             </p>
           </details>
+
           <details className="p-4 rounded-2xl border bg-white/80 backdrop-blur-sm shadow-sm">
             <summary className="cursor-pointer font-medium">¿Puedo usar mis propios apuntes?</summary>
             <p className="mt-2 text-sm text-slate-600">Sí, pega tu texto o súbelo como archivo.</p>
+          </details>
+
+          {/* Nuevas preguntas */}
+          <details className="p-4 rounded-2xl border bg-white/80 backdrop-blur-sm shadow-sm">
+            <summary className="cursor-pointer font-medium">¿Qué formatos de archivo admite?</summary>
+            <p className="mt-2 text-sm text-slate-600">
+              En este ejemplo trabajamos con texto pegado. Próximamente añadiremos PDF y DOCX.
+            </p>
+          </details>
+
+          <details className="p-4 rounded-2xl border bg-white/80 backdrop-blur-sm shadow-sm">
+            <summary className="cursor-pointer font-medium">¿Cuánto tarda en generarse un vídeo?</summary>
+            <p className="mt-2 text-sm text-slate-600">
+              El mensaje aparece en segundos. El vídeo final puede tardar 1–3 minutos según la cola de render.
+            </p>
+          </details>
+
+          <details className="p-4 rounded-2xl border bg-white/80 backdrop-blur-sm shadow-sm">
+            <summary className="cursor-pointer font-medium">¿Funciona en español y francés?</summary>
+            <p className="mt-2 text-sm text-slate-600">
+              Sí, el mensaje funciona en ambos idiomas. Las voces y subtítulos se añadirán en próximas versiones.
+            </p>
           </details>
         </div>
       </section>
@@ -367,4 +396,3 @@ En la pizarra verás un ejemplo y luego un mini-reto. ¡Vamos paso a paso!`;
     </>
   );
 }
-
