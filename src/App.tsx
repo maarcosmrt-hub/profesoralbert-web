@@ -213,41 +213,44 @@ En la pizarra verás un ejemplo y luego un mini-reto. ¡Vamos paso a paso!`;
 
           {/* Selects con placeholder gris */}
           <div className="mt-3 grid sm:grid-cols-3 gap-3">
-            <select
-              value={subject}
-              onChange={(e) => setSubject(e.target.value)}
-              className={`rounded-xl border p-2 ${subject ? "text-slate-900" : "text-slate-400"}`}
-            >
-              <option value="" disabled>Asignatura</option>
-              <option>Matemáticas</option>
-              <option>Física</option>
-              <option>Química</option>
-              <option>Historia</option>
-              <option>Lengua</option>
-            </select>
+           {/* ASIGNATURA */}
+<select
+  value={subject}
+  onChange={(e) => setSubject(e.target.value)}
+  className={`rounded-xl border p-2 ${subject ? "text-slate-900" : "text-slate-400"}`}
+>
+  <option value="" disabled className="text-slate-400">Asignatura</option>
+  <option className="!text-slate-900">Matemáticas</option>
+  <option className="!text-slate-900">Física</option>
+  <option className="!text-slate-900">Química</option>
+  <option className="!text-slate-900">Historia</option>
+  <option className="!text-slate-900">Lengua</option>
+</select>
 
-            <select
-              value={level}
-              onChange={(e) => setLevel(e.target.value)}
-              className={`rounded-xl border p-2 ${level ? "text-slate-900" : "text-slate-400"}`}
-            >
-              <option value="" disabled>Dificultad</option>
-              <option>Primaria</option>
-              <option>ESO</option>
-              <option>Bachillerato</option>
-              <option>Universidad</option>
-            </select>
+{/* DIFICULTAD */}
+<select
+  value={level}
+  onChange={(e) => setLevel(e.target.value)}
+  className={`rounded-xl border p-2 ${level ? "text-slate-900" : "text-slate-400"}`}
+>
+  <option value="" disabled className="text-slate-400">Dificultad</option>
+  <option className="!text-slate-900">Primaria</option>
+  <option className="!text-slate-900">ESO</option>
+  <option className="!text-slate-900">Bachillerato</option>
+  <option className="!text-slate-900">Universidad</option>
+</select>
 
-            <select
-              value={tone}
-              onChange={(e) => setTone(e.target.value)}
-              className={`rounded-xl border p-2 ${tone ? "text-slate-900" : "text-slate-400"}`}
-            >
-              <option value="" disabled>Tono</option>
-              <option>claro y motivador</option>
-              <option>formal y académico</option>
-              <option>divertido y cercano</option>
-            </select>
+{/* TONO */}
+<select
+  value={tone}
+  onChange={(e) => setTone(e.target.value)}
+  className={`rounded-xl border p-2 ${tone ? "text-slate-900" : "text-slate-400"}`}
+>
+  <option value="" disabled className="text-slate-400">Tono</option>
+  <option className="!text-slate-900">claro y motivador</option>
+  <option className="!text-slate-900">formal y académico</option>
+  <option className="!text-slate-900">divertido y cercano</option>
+</select>
           </div>
 
           <label className="mt-2 flex items-center gap-2 text-sm text-slate-600">
