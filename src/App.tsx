@@ -27,18 +27,27 @@ Explicación paso a paso:
 4) Resumen en una frase.`;
   };
 
-  const handleGenerateScript = async () => {
-    setLoading(true);
-    await new Promise((r) => setTimeout(r, 700));
-    const s = `Hola, soy el Profesor Albert. Hoy trabajaremos ${subject.toLowerCase()} a nivel ${level}.
+ const handleGenerateScript = async () => {
+  setLoading(true);
+  await new Promise((r) => setTimeout(r, 700));
+
+  const s = `Hola, soy el Profesor Albert. Hoy trabajaremos ${subject.toLowerCase()} a nivel ${level}.
 
 ${demoExplain(rawNotes)}
 
 En la pizarra verás un ejemplo y luego un mini-reto. ¡Vamos paso a paso!`;
-    setScript(s);
-    setLoading(false);
-    setStep(2);
-  };
+  setScript(s);
+  setLoading(false);
+  setStep(2);
+
+  // Si el usuario quiere, generamos el vídeo automáticamente
+  if (autoVideo) {
+    setTimeout(() => {
+      handleGenerateVideo();
+    }, 300);
+  }
+};
+
 
   const handleGenerateVideo = async () => {
     setLoading(true);
@@ -217,9 +226,9 @@ En la pizarra verás un ejemplo y luego un mini-reto. ¡Vamos paso a paso!`;
               onChange={(e) => setLevel(e.target.value)}
               className="rounded-xl border p-2"
             >
-              <option>Bachillerato</option>
-              <option>ESO</option>
               <option>Primaria</option>
+              <option>ESO</option>
+              <option>Bachillerato</option>
               <option>Universidad</option>
             </select>
 
@@ -233,7 +242,14 @@ En la pizarra verás un ejemplo y luego un mini-reto. ¡Vamos paso a paso!`;
               <option>divertido y cercano</option>
             </select>
           </div>
-
+          <label className="mt-2 flex items-center gap-2 text-sm text-slate-600">
+  <input
+    type="checkbox"
+    checked={autoVideo}
+    onChange={(e) => setAutoVideo(e.target.checked)}
+  />
+  Generar vídeo automáticamente tras el guion
+</label>
           <div className="mt-4">
             <button
               onClick={handleGenerateScript}
