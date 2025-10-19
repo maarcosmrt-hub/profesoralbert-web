@@ -114,7 +114,7 @@ function reassurance(tone: string) {
 function ctaLine() {
   return pick([
     "Cuando quieras, pulsa abajo para **generar el vídeo**.",
-    "Listo: ahora puedes **crear el vídeo** con un clic.",
+    "Listo: ahora puedes crear el vídeo con un clic.",
     "¿Lo vemos en pizarra? Pulsa para **generar el vídeo**.",
   ]);
 }
