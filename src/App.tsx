@@ -27,6 +27,117 @@ Explicación paso a paso:
 3) Mini-ejercicio guiado en la pizarra.
 4) Resumen en una frase.`;
   };
+// -------- helpers de mensaje dinámico --------
+function pick<T>(arr: T[]) { return arr[Math.floor(Math.random() * arr.length)]; }
+
+function normalize(s: string) {
+  return s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+}
+
+// Saca 2–3 “temas” simples de los apuntes (muy básico).
+function extractTopics(text: string, max = 3) {
+  const stop = new Set([
+    "el","la","los","las","un","una","unas","unos","de","del","y","o","u","en","para","por","con","sin",
+    "que","como","es","son","se","al","lo","su","sus","más","menos","muy","tambien","también","pero",
+    "si","no","a","entre","sobre","hasta","desde","cuando","donde","dónde","qué","cuál","cual","porque","porqué",
+  ]);
+  const words = normalize(text)
+    .replace(/[^a-záéíóúüñ0-9\s-]/gi, " ")
+    .split(/\s+/)
+    .filter(w => w.length > 3 && !stop.has(w));
+  const freq: Record<string, number> = {};
+  for (const w of words) freq[w] = (freq[w] || 0) + 1;
+  const top = Object.entries(freq).sort((a,b)=>b[1]-a[1]).slice(0, max).map(([w])=>w);
+  // “Bonito”
+  return top.map(t => t[0].toUpperCase() + t.slice(1));
+}
+
+function openings(tone: string, subject: string, level: string) {
+  const subj = subject || "la asignatura que elijas";
+  const lev  = level   || "el nivel que elijas";
+  const base = `Hola, soy el Profesor Albert. Hoy trabajaremos ${subj.toLowerCase()} a nivel ${lev}.`;
+  const map: Record<string,string[]> = {
+    "formal y académico": [
+      `${base} Comenzaremos con un marco conceptual claro para que la explicación sea rigurosa.`,
+      `${base} Presentaré los puntos clave de forma ordenada para facilitar la comprensión.`,
+    ],
+    "divertido y cercano": [
+      `${base} Tranquilo, esto va a ser más fácil de lo que parece 😉`,
+      `${base} Vamos paso a paso y con ejemplos sencillos, ya verás.`,
+    ],
+    "claro y motivador": [
+      `${base} Lo haremos simple y directo, sin enredos.`,
+      `${base} Te acompaño con una explicación clara, con pizarra y ejemplo.`,
+    ],
+  };
+  return pick(map[tone] || map["claro y motivador"]);
+}
+
+function planLine(topics: string[]) {
+  if (topics.length >= 2) {
+    return pick([
+      `Para empezar, veremos **${topics[0]}**, y después aplicaremos **${topics[1]}** con un ejemplo.`,
+      `Primero entenderemos **${topics[0]}**; luego conectaremos con **${topics[1]}** paso a paso.`,
+      `Iniciaremos con **${topics[0]}** y continuaremos con **${topics[1]}** para fijar ideas.`,
+    ]);
+  }
+  if (topics.length === 1) {
+    return pick([
+      `Para empezar, vamos a ver **${topics[0]}** y practicarlo con un ejercicio breve.`,
+      `Arrancamos por **${topics[0]}** y lo afianzamos con un ejemplo guiado.`,
+    ]);
+  }
+  return pick([
+    "Para empezar, veremos la idea principal y la llevaremos a un ejemplo claro.",
+    "Comenzaremos con una definición sencilla y la fijaremos con un ejemplo guiado.",
+  ]);
+}
+
+function reassurance(tone: string) {
+  const map: Record<string,string[]> = {
+    "formal y académico": [
+      "Al finalizar, dispondrás de una síntesis ordenada para repasar.",
+      "Cerraremos con un breve resumen para consolidar el aprendizaje.",
+    ],
+    "divertido y cercano": [
+      "Ya verás que sale solo, ¡lo hacemos juntos!",
+      "Verás que no era tan complicado 😉",
+    ],
+    "claro y motivador": [
+      "Vas a ver que es más fácil de lo que parece.",
+      "En pocos minutos, lo tendrás claro.",
+    ],
+  };
+  return pick(map[tone] || map["claro y motivador"]);
+}
+
+function ctaLine() {
+  return pick([
+    "Cuando quieras, pulsa abajo para **generar el vídeo**.",
+    "Listo: ahora puedes **crear el vídeo** con un clic.",
+    "¿Lo vemos en pizarra? Pulsa para **generar el vídeo**.",
+  ]);
+}
+
+function buildProfessorMessage(subject: string, level: string, tone: string, raw: string) {
+  const intro = openings(tone, subject, level);
+  const topics = extractTopics(raw, 3);
+  const plan = planLine(topics);
+  const extra = reassurance(tone);
+  const cta = ctaLine();
+
+  // Bonus: si hay texto pegado, añadimos una “idea principal” breve.
+  const idea = raw.trim()
+    ? `\n\n**Idea principal**: ${raw.replace(/\s+/g, " ").slice(0, 160).trim()}…`
+    : "";
+
+  return `${intro}
+
+${plan}${idea}
+
+${extra} ${cta}`;
+}
+// -------- fin helpers --------
 
   const handleGenerateScript = async () => {
     setLoading(true);
