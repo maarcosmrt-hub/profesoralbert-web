@@ -139,30 +139,28 @@ ${extra} ${cta}`;
 }
 // -------- fin helpers --------
 
-  const handleGenerateScript = async () => {
-    setLoading(true);
-    await new Promise((r) => setTimeout(r, 700));
+ const handleGenerateScript = async () => {
+  setLoading(true);
+  await new Promise((r) => setTimeout(r, 700));
 
-    const subjText = subject ? subject.toLowerCase() : "la asignatura que elijas";
-    const levelText = level || "el nivel que elijas";
+  const s = buildProfessorMessage(
+    subject,
+    level,
+    (tone || "claro y motivador"),
+    rawNotes
+  );
 
-    const s = `Hola, soy el Profesor Albert. Hoy trabajaremos ${subjText} a nivel ${levelText}.
+  setScript(s);
+  setLoading(false);
+  setStep(2);
 
-${demoExplain(rawNotes)}
-
-En la pizarra verás un ejemplo y luego un mini-reto. ¡Vamos paso a paso!`;
-    setScript(s);
-    setLoading(false);
-    setStep(2);
-
-    // Si el usuario quiere, generamos el vídeo automáticamente
-    if (autoVideo) {
-      setTimeout(() => {
-        handleGenerateVideo();
-      }, 300);
-    }
-  };
-
+  if (autoVideo) {
+    setTimeout(() => {
+      handleGenerateVideo();
+    }, 300);
+  }
+};
+  
   const handleGenerateVideo = async () => {
     setLoading(true);
     setVideoUrl("");
