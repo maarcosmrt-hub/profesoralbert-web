@@ -243,7 +243,7 @@ En la pizarra verás un ejemplo y luego un mini-reto. ¡Vamos paso a paso!`;
               onChange={(e) => setTone(e.target.value)}
               className={`rounded-xl border p-2 ${tone ? "text-slate-900" : "text-slate-400"}`}
             >
-              <option value="" disabled>Modo</option>
+              <option value="" disabled>Tono</option>
               <option>claro y motivador</option>
               <option>formal y académico</option>
               <option>divertido y cercano</option>
