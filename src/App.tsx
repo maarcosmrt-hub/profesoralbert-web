@@ -11,6 +11,7 @@ export default function App() {
   const [level, setLevel] = useState("Bachillerato");
   const [loading, setLoading] = useState(false);
   const [videoUrl, setVideoUrl] = useState("");
+  const [autoVideo, setAutoVideo] = useState(true);
 
   const demoExplain = (text: string) => {
     if (!text.trim()) return "";
