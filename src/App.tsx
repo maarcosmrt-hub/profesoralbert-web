@@ -310,7 +310,7 @@ En la pizarra verás un ejemplo y luego un mini-reto. ¡Vamos paso a paso!`;
 
       {/* Precios */}
       <section id="precios" className="max-w-6xl mx-auto px-4 py-12">
-        <h3 className="text-2xl font-semibold">Precios (propuesta)</h3>
+        <h3 className="text-2xl font-semibold">Precios </h3>
         <div className="mt-4 grid md:grid-cols-3 gap-4">
           {[
             {
