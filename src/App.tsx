@@ -76,15 +76,15 @@ function openings(tone: string, subject: string, level: string) {
 function planLine(topics: string[]) {
   if (topics.length >= 2) {
     return pick([
-      `Para empezar, veremos **${topics[0]}**, y después aplicaremos **${topics[1]}** con un ejemplo.`,
-      `Primero entenderemos **${topics[0]}**; luego conectaremos con **${topics[1]}** paso a paso.`,
-      `Iniciaremos con **${topics[0]}** y continuaremos con **${topics[1]}** para fijar ideas.`,
+      `Para empezar, veremos ${topics[0]}, y después aplicaremos ${topics[1]} con un ejemplo.`,
+      `Primero entenderemos ${topics[0]}; luego conectaremos con **${topics[1]}** paso a paso.`,
+      `Iniciaremos con ${topics[0]} y continuaremos con ${topics[1]} para fijar ideas.`,
     ]);
   }
   if (topics.length === 1) {
     return pick([
-      `Para empezar, vamos a ver **${topics[0]}** y practicarlo con un ejercicio breve.`,
-      `Arrancamos por **${topics[0]}** y lo afianzamos con un ejemplo guiado.`,
+      `Para empezar, vamos a ver ${topics[0]} y practicarlo con un ejercicio breve.`,
+      `Arrancamos por ${topics[0]} y lo afianzamos con un ejemplo guiado.`,
     ]);
   }
   return pick([
@@ -128,7 +128,7 @@ function buildProfessorMessage(subject: string, level: string, tone: string, raw
 
   // Bonus: si hay texto pegado, añadimos una “idea principal” breve.
   const idea = raw.trim()
-    ? `\n\n**Idea principal**: ${raw.replace(/\s+/g, " ").slice(0, 160).trim()}…`
+    ? `\n\nIdea principal: ${raw.replace(/\s+/g, " ").slice(0, 160).trim()}…`
     : "";
 
   return `${intro}
