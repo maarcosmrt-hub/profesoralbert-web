@@ -251,13 +251,14 @@ En la pizarra verás un ejemplo y luego un mini-reto. ¡Vamos paso a paso!`;
   Generar vídeo automáticamente tras el guion
 </label>
           <div className="mt-4">
-            <button
-              onClick={handleGenerateScript}
-              disabled={loading}
-              className="px-4 py-2 rounded-xl bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-60"
-            >
-              {loading ? "Generando guion…" : "Generar guion"}
-            </button>
+           <button
+  onClick={handleGenerateScript}
+  disabled={loading}
+  className="px-4 py-2 rounded-xl bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-60"
+  title={loading ? "Generando…" : undefined}
+>
+  {loading ? "Generando guion…" : "Generar guion"}
+</button>
           </div>
         </div>
 
