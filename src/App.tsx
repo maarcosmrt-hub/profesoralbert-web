@@ -377,9 +377,9 @@ En la pizarra verás un ejemplo y luego un mini-reto. ¡Vamos paso a paso!`;
           </details>
 
           <details className="p-4 rounded-2xl border bg-white/80 backdrop-blur-sm shadow-sm">
-            <summary className="cursor-pointer font-medium">¿Funciona en español y francés?</summary>
+            <summary className="cursor-pointer font-medium">¿Funciona en más idiomas?</summary>
             <p className="mt-2 text-sm text-slate-600">
-              Sí, el mensaje funciona en ambos idiomas. Las voces y subtítulos se añadirán en próximas versiones.
+              Sí, el mensaje también funciona en francés. Las voces y subtítulos se añadirán en próximas versiones.
             </p>
           </details>
         </div>
