@@ -216,12 +216,7 @@ ${extra} ${cta}`;
               <span className="text-blue-600">vídeos explicativos</span> con un profesor IA
             </h2>
             <p className="mt-4 text-slate-600">
-            <ul className="mt-6 space-y-2 text-sm">
-              <li>• Avatar consistente: Profesor Albert.</li>
-              <li>• Pizarra digital: definición, ejemplo, ejercicio guiado y resumen.</li>
-              <li>• Tono: claro y motivador.</li>
-            </ul>
-
+          
             {/* CTA */}
             <div className="mt-4 flex gap-3">
               <a href="#ejemplo" className="px-4 py-2 rounded-xl bg-blue-600 text-white hover:bg-blue-700 shadow">
