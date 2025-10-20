@@ -216,11 +216,8 @@ ${extra} ${cta}`;
               <span className="text-blue-600">vídeos explicativos</span> con un profesor IA
             </h2>
             <p className="mt-4 text-slate-600">
-              Sube tu texto y obtén una explicación clara, con guion pedagógico y pizarra
-              dinámica. Ideal para repasar, entender rápido y compartir con tu clase.
-            </p>
             <ul className="mt-6 space-y-2 text-sm">
-              <li>• Avatar consistente: Profesor Albert (bata blanca y fondo aula).</li>
+              <li>• Avatar consistente: Profesor Albert.</li>
               <li>• Pizarra digital: definición, ejemplo, ejercicio guiado y resumen.</li>
               <li>• Tono: claro y motivador.</li>
             </ul>
