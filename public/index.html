@@ -1,22 +1,77 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
   <head>
     <meta charset="utf-8" />
+    <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Profesor Albert – Tu profe IA con pizarra</title>
-    <meta name="description" content="Convierte tus apuntes en vídeos explicativos con el Profesor Albert, tu profe IA.">
-    <link rel="icon" href="/albert.png">
 
-    <!-- Open Graph (opcional) -->
-    <meta property="og:title" content="Profesor Albert – Tu profe IA con pizarra">
-    <meta property="og:description" content="Convierte tus apuntes en vídeos explicativos con el Profesor Albert.">
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://profesoralbert.vercel.app">
-    <meta property="og:image" content="/albert.png">
+    <!-- Evitar "flash" de tema: aplica clase dark/light antes del render -->
+    <script>
+      (function () {
+        try {
+          var saved = localStorage.getItem("theme");
+          var prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+          var theme = saved === "light" || saved === "dark" ? saved : (prefersDark ? "dark" : "light");
+          if (theme === "dark") document.documentElement.classList.add("dark");
+        } catch (e) {}
+      })();
+    </script>
+
+    <title>Profesor Albert — Aprende con IA</title>
+
+    <!-- Descripción limpia (sin viñetas) -->
+    <meta
+      name="description"
+      content="Pega tus apuntes y genera un mensaje claro del profesor, con opción de vídeo."
+    />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Profesor Albert" />
+    <meta property="og:title" content="Profesor Albert — Aprende con IA" />
+    <meta
+      property="og:description"
+      content="Pega tus apuntes y genera un mensaje claro del profesor, con opción de vídeo."
+    />
+    <meta property="og:url" content="https://profesoralbert.vercel.app/" />
+    <!-- IMPORTANTE: usa URL absoluta y un querystring para romper caché -->
+    <meta
+      property="og:image"
+      content="https://profesoralbert.vercel.app/albert_og.png?v=2"
+    />
+    <meta
+      property="og:image:secure_url"
+      content="https://profesoralbert.vercel.app/albert_og.png?v=2"
+    />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content="@profesoralbert" />
+    <meta name="twitter:title" content="Profesor Albert — Aprende con IA" />
+    <meta
+      name="twitter:description"
+      content="Pega tus apuntes y genera un mensaje claro del profesor, con opción de vídeo."
+    />
+    <meta
+      name="twitter:image"
+      content="https://profesoralbert.vercel.app/albert_og.png?v=2"
+    />
+
+    <!-- Manifest / Theme color opcional -->
+    <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
+    <meta name="theme-color" content="#0ea5e9" />
+
+    <!-- Tip: si usas Tailwind vía build, no necesitas CDN aquí -->
   </head>
-  <body>
-    <noscript>You need to enable JavaScript to run this app.</noscript>
+  <body class="bg-white dark:bg-black text-slate-900 dark:text-slate-100">
+    <noscript>Necesitas habilitar JavaScript para usar Profesor Albert.</noscript>
     <div id="root"></div>
+
+    <!-- Suavizado de scroll para navegadores que ignoran CSS global -->
+    <style>
+      html { scroll-behavior: smooth; }
+    </style>
   </body>
 </html>
-
