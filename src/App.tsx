@@ -1,522 +1,501 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+// src/App.tsx
+import React, { useState } from "react";
 
-// =====================
-// Helpers
-// =====================
-type Level = "Fácil" | "Media" | "Difícil";
-type Tone = "Amable" | "Motivador" | "Serio";
+export default function App() {
+  const [step, setStep] = useState(1);
+  const [inputMode, setInputMode] = useState<"paste" | "file">("paste");
+  const [rawNotes, setRawNotes] = useState("");
+  const [script, setScript] = useState("");
+  // Placeholders vacíos para selects
+  const [tone, setTone] = useState("");
+  const [subject, setSubject] = useState("");
+  const [level, setLevel] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [videoUrl, setVideoUrl] = useState("");
+  const [autoVideo, setAutoVideo] = useState(true);
 
-function buildProfessorMessage({
-  notes,
-  subject,
-  level,
-  tone,
-}: {
-  notes: string;
-  subject: string;
-  level: Level;
-  tone: Tone;
-}) {
-  // Mock simple: en tu proyecto ya tienes helpers propios; aquí solo dejamos un fallback.
-  const intro =
-    tone === "Amable"
-      ? "Hola, soy el Profesor Albert. Vamos despacio y con buen rollo."
-      : tone === "Motivador"
-      ? "¡Hola! Soy el Profesor Albert. ¡Vamos a por ello, paso a paso!"
-      : "Buenas. Soy el Profesor Albert. Seré directo y claro.";
+  const demoExplain = (text: string) => {
+    if (!text.trim()) return "";
+    const base = text.replace(/\s+/g, " ").slice(0, 300).trim();
+    return `Objetivo: entender el tema de forma simple.
+
+Idea principal → ${base}...
+
+Explicación paso a paso:
+1) Definición sencilla del concepto.
+2) Ejemplo cotidiano para visualizarlo.
+3) Mini-ejercicio guiado en la pizarra.
+4) Resumen en una frase.`;
+  };
+// -------- helpers de mensaje dinámico --------
+function pick<T>(arr: T[]) { return arr[Math.floor(Math.random() * arr.length)]; }
+
+function normalize(s: string) {
+  return s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+}
+
+// Saca 2–3 “temas” simples de los apuntes (muy básico).
+function extractTopics(text: string, max = 3) {
+  const stop = new Set([
+    "el","la","los","las","un","una","unas","unos","de","del","y","o","u","en","para","por","con","sin",
+    "que","como","es","son","se","al","lo","su","sus","más","menos","muy","tambien","también","pero",
+    "si","no","a","entre","sobre","hasta","desde","cuando","donde","dónde","qué","cuál","cual","porque","porqué",
+  ]);
+  const words = normalize(text)
+    .replace(/[^a-záéíóúüñ0-9\s-]/gi, " ")
+    .split(/\s+/)
+    .filter(w => w.length > 3 && !stop.has(w));
+  const freq: Record<string, number> = {};
+  for (const w of words) freq[w] = (freq[w] || 0) + 1;
+  const top = Object.entries(freq).sort((a,b)=>b[1]-a[1]).slice(0, max).map(([w])=>w);
+  // “Bonito”
+  return top.map(t => t[0].toUpperCase() + t.slice(1));
+}
+
+function openings(tone: string, subject: string, level: string) {
+  const subj = subject || "la asignatura que elijas";
+  const lev  = level   || "el nivel que elijas";
+  const base = `Hola, soy el Profesor Albert. Hoy trabajaremos ${subj.toLowerCase()} a nivel ${lev}.`;
+  const map: Record<string,string[]> = {
+    "formal y académico": [
+      `${base} Comenzaremos con un marco conceptual claro para que la explicación sea rigurosa.`,
+      `${base} Presentaré los puntos clave de forma ordenada para facilitar la comprensión.`,
+    ],
+    "divertido y cercano": [
+      `${base} Tranquilo, esto va a ser más fácil de lo que parece 😉`,
+      `${base} Vamos paso a paso y con ejemplos sencillos, ya verás.`,
+    ],
+    "claro y motivador": [
+      `${base} Lo haremos simple y directo, sin enredos.`,
+      `${base} Te acompaño con una explicación clara, con pizarra y ejemplo.`,
+    ],
+  };
+  return pick(map[tone] || map["claro y motivador"]);
+}
+
+function planLine(topics: string[]) {
+  if (topics.length >= 2) {
+    return pick([
+      `Para empezar, veremos ${topics[0]}, y después aplicaremos ${topics[1]} con un ejemplo.`,
+      `Primero entenderemos ${topics[0]}; luego conectaremos con **${topics[1]}** paso a paso.`,
+      `Iniciaremos con ${topics[0]} y continuaremos con ${topics[1]} para fijar ideas.`,
+    ]);
+  }
+  if (topics.length === 1) {
+    return pick([
+      `Para empezar, vamos a ver ${topics[0]} y practicarlo con un ejercicio breve.`,
+      `Arrancamos por ${topics[0]} y lo afianzamos con un ejemplo guiado.`,
+    ]);
+  }
+  return pick([
+    "Para empezar, veremos la idea principal y la llevaremos a un ejemplo claro.",
+    "Comenzaremos con una definición sencilla y la fijaremos con un ejemplo guiado.",
+  ]);
+}
+
+function reassurance(tone: string) {
+  const map: Record<string,string[]> = {
+    "formal y académico": [
+      "Al finalizar, dispondrás de una síntesis ordenada para repasar.",
+      "Cerraremos con un breve resumen para consolidar el aprendizaje.",
+    ],
+    "divertido y cercano": [
+      "Ya verás que sale solo, ¡lo hacemos juntos!",
+      "Verás que no era tan complicado 😉",
+    ],
+    "claro y motivador": [
+      "Vas a ver que es más fácil de lo que parece.",
+      "En pocos minutos, lo tendrás claro.",
+    ],
+  };
+  return pick(map[tone] || map["claro y motivador"]);
+}
+
+function ctaLine() {
+  return pick([
+    "Cuando quieras, pulsa abajo para generar el vídeo.",
+    "Listo: ahora puedes crear el vídeo con un clic.",
+    "¿Lo vemos en pizarra? Pulsa para generar el vídeo.",
+  ]);
+}
+
+function buildProfessorMessage(subject: string, level: string, tone: string, raw: string) {
+  const intro = openings(tone, subject, level);
+  const topics = extractTopics(raw, 3);
+  const plan = planLine(topics);
+  const extra = reassurance(tone);
+  const cta = ctaLine();
+
+  // Bonus: si hay texto pegado, añadimos una “idea principal” breve.
+  const idea = raw.trim()
+    ? `\n\nIdea principal: ${raw.replace(/\s+/g, " ").slice(0, 160).trim()}…`
+    : "";
+
   return `${intro}
 
-Hoy trabajaremos ${subject} a nivel ${level}. He leído tus apuntes y esto es lo esencial:
+${plan}${idea}
 
-${notes.trim().slice(0, 400)}${notes.length > 400 ? "…" : ""}
-
-Resumen:
-1) Qué debes entender primero.
-2) Un ejemplo típico.
-3) Un mini-ejercicio para practicar.
-
-Cuando quieras, pulsa abajo para generar el vídeo.`;
+${extra} ${cta}`;
 }
+// -------- fin helpers --------
 
-// Límite semanal: 1 uso (versión localStorage; backend real más tarde)
-const QUOTA_KEY = "pa_free_last_use_iso";
-function canUseFree() {
-  const last = localStorage.getItem(QUOTA_KEY);
-  if (!last) return true;
-  const lastDate = new Date(last);
-  const now = new Date();
-  const diffDays = (now.getTime() - lastDate.getTime()) / 86_400_000;
-  return diffDays >= 7;
-}
-function markUsed() {
-  localStorage.setItem(QUOTA_KEY, new Date().toISOString());
-}
+ const handleGenerateScript = async () => {
+  setLoading(true);
+  await new Promise((r) => setTimeout(r, 700));
 
-// Scroll-spy hook
-function useScrollSpy(ids: string[], rootMargin = "-45% 0px -50% 0px") {
-  const [activeId, setActiveId] = useState<string | null>(null);
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const visible = entries
-          .filter((e) => e.isIntersecting)
-          .sort((a, b) => b.intersectionRatio - a.intersectionRatio);
-        if (visible[0]) setActiveId(visible[0].target.id);
-      },
-      { rootMargin, threshold: [0, 0.25, 0.5, 0.75, 1] }
-    );
-    ids.forEach((id) => {
-      const el = document.getElementById(id);
-      if (el) observer.observe(el);
-    });
-    return () => observer.disconnect();
-  }, [ids, rootMargin]);
-  return activeId;
-}
-
-// =====================
-// Componentes UI
-// =====================
-function ThemeToggle() {
-  const [theme, setTheme] = useState<"light" | "dark">(() => {
-    // Este estado inicial se replica en index.html para evitar FOUC
-    const saved = localStorage.getItem("theme");
-    if (saved === "light" || saved === "dark") return saved;
-    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-    return prefersDark ? "dark" : "light";
-  });
-
-  useEffect(() => {
-    const root = document.documentElement;
-    if (theme === "dark") root.classList.add("dark");
-    else root.classList.remove("dark");
-    localStorage.setItem("theme", theme);
-  }, [theme]);
-
-  return (
-    <button
-      className="rounded-xl px-3 py-2 border border-white/20 bg-white/70 dark:bg-white/5 hover:bg-white/90 transition"
-      onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-      aria-label="Cambiar tema"
-      title="Cambiar tema"
-    >
-      {theme === "dark" ? "☀️ Claro" : "🌙 Oscuro"}
-    </button>
+  const s = buildProfessorMessage(
+    subject,
+    level,
+    (tone || "claro y motivador"),
+    rawNotes
   );
-}
 
-function Navbar() {
-  const sections = ["como-funciona", "ejemplo", "precios", "faq"] as const;
-  const activeId = useScrollSpy(sections as unknown as string[]);
+  setScript(s);
+  setLoading(false);
+  setStep(2);
 
-  const base =
-    "px-3 py-2 rounded-lg transition hover:text-sky-600 dark:hover:text-sky-400";
-  const active =
-    "text-sky-700 dark:text-sky-300 bg-sky-600/10 dark:bg-sky-400/10";
+  if (autoVideo) {
+    setTimeout(() => {
+      handleGenerateVideo();
+    }, 300);
+  }
+};
+  
+  const handleGenerateVideo = async () => {
+    setLoading(true);
+    setVideoUrl("");
+    await new Promise((r) => setTimeout(r, 1200));
+    setVideoUrl("mock://albert-video-ejemplo");
+    setLoading(false);
+    setStep(3);
+  };
 
   return (
-    <nav className="sticky top-0 z-50 backdrop-blur supports-[backdrop-filter]:bg-white/60 dark:supports-[backdrop-filter]:bg-black/30 border-b border-black/5 dark:border-white/10">
-      <div className="max-w-6xl mx-auto flex items-center justify-between gap-3 p-2">
-        <a href="#top" className="flex items-center gap-2">
-          <img src="/albert.png" alt="Profesor Albert" className="w-8 h-8 rounded-xl" />
-          <span className="font-semibold">Profesor Albert</span>
-        </a>
-        <div className="flex items-center gap-1">
-          {sections.map((id) => (
-            <a
-              key={id}
-              href={`#${id}`}
-              className={`${base} ${activeId === id ? active : ""}`}
-            >
-              {id === "como-funciona"
-                ? "Cómo funciona"
-                : id === "ejemplo"
-                ? "Ejemplo"
-                : id === "precios"
-                ? "Precios"
-                : "Preguntas frecuentes"}
-            </a>
-          ))}
-        </div>
-        <ThemeToggle />
-      </div>
-    </nav>
-  );
-}
+    <>
+      {/* Header */}
+      <header className="border-b border-slate-200 bg-white/70 backdrop-blur">
+        <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <img
+              src="/albert.png?v=3"
+              alt="Profesor Albert"
+              className="w-10 h-10 rounded-2xl object-cover shadow-sm"
+            />
+            <div>
+              <div className="font-semibold">Profesor Albert</div>
+              <div className="text-xs text-slate-500">
+                Tu profe IA que explica con pizarra
+              </div>
+            </div>
+          </div>
 
-function Hero() {
-  return (
-    <header id="top" className="relative overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-to-b from-sky-100 to-white dark:from-slate-900 dark:to-black pointer-events-none" />
-      <div className="relative max-w-6xl mx-auto px-4 py-12 flex flex-col-reverse md:flex-row items-center gap-8">
-        <div className="flex-1">
-          <h1 className="text-3xl sm:text-5xl font-extrabold leading-tight">
-            Aprende con <span className="text-sky-600">IA</span> a tu ritmo.
-          </h1>
-          <p className="mt-4 text-lg opacity-80">
-            Pega tus apuntes y recibe un <strong>mensaje del profesor</strong> claro y motivador.
-            Luego, genera un <strong>vídeo</strong> en un clic.
-          </p>
-          <div className="mt-6 flex items-center gap-3">
-            <a
-              href="#ejemplo"
-              className="rounded-2xl px-5 py-3 bg-sky-600 text-white font-medium hover:bg-sky-700 transition shadow"
-            >
-              Probar el ejemplo
+          <nav className="hidden md:flex items-center gap-6 text-sm">
+            <a className="hover:text-blue-600 transition-colors" href="#como-funciona">Cómo funciona</a>
+            <a className="hover:text-blue-600 transition-colors" href="#ejemplo">Ejemplo</a>
+            <a className="hover:text-blue-600 transition-colors" href="#precios">Precios</a>
+            <a className="hover:text-blue-600 transition-colors" href="#preguntas">Preguntas frecuentes</a>
+          </nav>
+
+          <div className="flex items-center gap-2">
+            <a className="px-3 py-1.5 rounded-xl border border-slate-300 hover:bg-slate-100 text-sm" href="#">
+              Entrar
             </a>
-            <a
-              href="#como-funciona"
-              className="rounded-2xl px-5 py-3 bg-white/70 dark:bg-white/5 border border-black/5 dark:border-white/10 hover:bg-white/90 transition"
-            >
-              Cómo funciona
+            <a className="px-3 py-1.5 rounded-xl bg-blue-600 text-white hover:bg-blue-700 text-sm" href="#ejemplo">
+              Probar gratis
             </a>
           </div>
         </div>
-        <div className="flex-1 w-full">
-          <div className="relative rounded-3xl p-1 bg-gradient-to-br from-white/60 to-white/20 dark:from-white/10 dark:to-white/5">
-            <div className="rounded-3xl p-6 bg-white/70 dark:bg-white/5 border border-black/5 dark:border-white/10 shadow-xl">
+      </header>
+
+      {/* Hero */}
+      <section className="max-w-6xl mx-auto px-4 pt-8 md:pt-12 pb-4 md:pb-6">
+        <div className="grid md:grid-cols-2 gap-6 items-center">
+          <div>
+            <h2 className="text-3xl md:text-4xl font-bold leading-tight">
+              Convierte tus apuntes en{" "}
+              <span className="text-blue-600">vídeos explicativos</span> con un profesor IA
+            </h2>
+            <p className="mt-4 text-slate-600">
+            {/* CTA */}
+            <div className="mt-4 flex gap-3">
+              <a href="#ejemplo" className="px-4 py-2 rounded-xl bg-blue-600 text-white hover:bg-blue-700 shadow">
+                Ver ejemplo
+              </a>
+              <a href="#como-funciona" className="px-4 py-2 rounded-xl border border-slate-300 hover:bg-slate-100">
+                Ver cómo funciona
+              </a>
+            </div>
+          </div>
+
+          {/* Tarjeta Albert */}
+          <div className="p-5 rounded-2xl border bg-white/80 backdrop-blur-sm shadow-sm">
+            <div className="flex items-center gap-3">
               <img
-                src="/albert.png"
-                alt="Avatar Profesor Albert"
-                className="w-full h-auto rounded-2xl object-cover"
+                src="/albert.png?v=3"
+                alt="Profesor Albert"
+                className="w-16 h-16 rounded-2xl object-cover shadow"
               />
+              <div>
+                <div className="text-slate-500 text-sm">Profesor virtual</div>
+                <div className="font-semibold text-lg">Albert</div>
+              </div>
+            </div>
+
+            <div className="mt-4 rounded-2xl bg-slate-50 border p-4 text-slate-600">
+              “Explicaciones claras con pizarra digital.”
+            </div>
+
+            <div className="mt-4 grid grid-cols-3 gap-3">
+              <div className="p-3 rounded-xl bg-slate-50 border">Definición</div>
+              <div className="p-3 rounded-xl bg-slate-50 border">Ejemplo</div>
+              <div className="p-3 rounded-xl bg-slate-50 border">Ejercicio</div>
             </div>
           </div>
         </div>
-      </div>
-    </header>
-  );
-}
+      </section>
 
-function HowItWorks() {
-  return (
-    <section id="como-funciona" className="scroll-mt-24">
-      <div className="max-w-6xl mx-auto px-4 py-16">
-        <h2 className="text-2xl sm:text-4xl font-bold">Cómo funciona</h2>
-        <div className="mt-8 grid md:grid-cols-3 gap-6">
+      {/* Cómo funciona */}
+      <section id="como-funciona" className="max-w-6xl mx-auto px-4 pt-6 pb-12">
+        <h3 className="text-2xl font-semibold">Cómo funciona</h3>
+        <div className="grid md:grid-cols-3 gap-4 mt-4">
+          <div className="p-5 rounded-2xl border bg-white/80 backdrop-blur-sm shadow-sm">
+            <div className="font-semibold">1 · Pega tus apuntes</div>
+            <p className="text-sm text-slate-600 mt-1">Pega o sube tu texto.</p>
+          </div>
+          <div className="p-5 rounded-2xl border bg-white/80 backdrop-blur-sm shadow-sm">
+            <div className="font-semibold">2 · Preparamos el mensaje</div>
+            <p className="text-sm text-slate-600 mt-1">Generamos el mensaje del profesor a partir de tus notas.</p>
+          </div>
+          <div className="p-5 rounded-2xl border bg-white/80 backdrop-blur-sm shadow-sm">
+            <div className="font-semibold">3 · Exporta el vídeo</div>
+            <p className="text-sm text-slate-600 mt-1">Descarga/Comparte cuando esté renderizado.</p>
+          </div>
+        </div>
+      </section>
+
+      {/* Ejemplo */}
+      <section id="ejemplo" className="max-w-6xl mx-auto px-4 py-12">
+        <h3 className="text-2xl font-semibold">Ejemplo</h3>
+
+        {/* Paso 1 */}
+        <div className="mt-4 p-5 rounded-2xl border bg-white/80 backdrop-blur-sm shadow-sm">
+          <div className="flex flex-wrap items-center gap-3 text-sm">
+            <span className="font-semibold">1) Apuntes</span>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setInputMode("paste")}
+                className={`px-3 py-1.5 rounded-xl border ${inputMode === "paste" ? "bg-slate-100" : ""}`}
+              >
+                Pegar texto
+              </button>
+              <button
+                onClick={() => setInputMode("file")}
+                className={`px-3 py-1.5 rounded-xl border ${inputMode === "file" ? "bg-slate-100" : ""}`}
+              >
+                Subir archivo
+              </button>
+            </div>
+          </div>
+
+          {inputMode === "paste" ? (
+            <textarea
+              className="mt-3 w-full min-h-[120px] rounded-xl border p-3 outline-none focus:ring-2 focus:ring-blue-200"
+              placeholder="Pega aquí tus apuntes o el tema que quieres explicar…"
+              value={rawNotes}
+              onChange={(e) => setRawNotes(e.target.value)}
+            />
+          ) : (
+            <div className="mt-3">
+              <input type="file" className="block" />
+              <p className="text-xs text-slate-500 mt-1">* Ejemplo: no se procesa, es solo UI.</p>
+            </div>
+          )}
+
+          {/* Selects con placeholder gris */}
+          <div className="mt-3 grid sm:grid-cols-3 gap-3">
+           {/* ASIGNATURA */}
+<select
+  value={subject}
+  onChange={(e) => setSubject(e.target.value)}
+  className={`rounded-xl border p-2 ${subject ? "text-slate-900" : "text-slate-400"}`}
+>
+  <option value="" disabled className="text-slate-400">Asignatura</option>
+  <option className="!text-slate-900">Matemáticas</option>
+  <option className="!text-slate-900">Física</option>
+  <option className="!text-slate-900">Química</option>
+  <option className="!text-slate-900">Historia</option>
+  <option className="!text-slate-900">Lengua</option>
+</select>
+
+{/* DIFICULTAD */}
+<select
+  value={level}
+  onChange={(e) => setLevel(e.target.value)}
+  className={`rounded-xl border p-2 ${level ? "text-slate-900" : "text-slate-400"}`}
+>
+  <option value="" disabled className="text-slate-400">Dificultad</option>
+  <option className="!text-slate-900">Primaria</option>
+  <option className="!text-slate-900">ESO</option>
+  <option className="!text-slate-900">Bachillerato</option>
+  <option className="!text-slate-900">Universidad</option>
+</select>
+
+{/* TONO */}
+<select
+  value={tone}
+  onChange={(e) => setTone(e.target.value)}
+  className={`rounded-xl border p-2 ${tone ? "text-slate-900" : "text-slate-400"}`}
+>
+  <option value="" disabled className="text-slate-400">Tono</option>
+  <option className="!text-slate-900">claro y motivador</option>
+  <option className="!text-slate-900">formal y académico</option>
+  <option className="!text-slate-900">divertido y cercano</option>
+</select>
+          </div>
+
+          <label className="mt-2 flex items-center gap-2 text-sm text-slate-600">
+            <input
+              type="checkbox"
+              checked={autoVideo}
+              onChange={(e) => setAutoVideo(e.target.checked)}
+            />
+            Generar vídeo automáticamente tras el mensaje
+          </label>
+
+          <div className="mt-4">
+            <button
+              onClick={handleGenerateScript}
+              disabled={loading}
+              className="px-4 py-2 rounded-xl bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-60"
+              title={loading ? "Preparando…" : undefined}
+            >
+              {loading ? "Preparando…" : "Mostrar mensaje del profesor"}
+            </button>
+          </div>
+        </div>
+
+        {/* Mensaje del profesor (antes “2) Guion”) */}
+        {step >= 2 && (
+          <div className="mt-4 p-5 rounded-2xl border bg-white/80 backdrop-blur-sm shadow-sm">
+            <div className="font-semibold">Mensaje del profesor</div>
+            <pre className="mt-2 whitespace-pre-wrap text-sm bg-slate-50 p-3 rounded-xl border">
+              {script || "Aquí aparecerá el mensaje del profesor basado en tus apuntes."}
+            </pre>
+            <div className="mt-3">
+              <button
+                onClick={handleGenerateVideo}
+                disabled={loading}
+                className="px-4 py-2 rounded-xl bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-60"
+              >
+                {loading ? "Preparando vídeo…" : "Generar vídeo"}
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Paso 3 */}
+        {step >= 3 && (
+          <div className="mt-4 p-5 rounded-2xl border bg-white/80 backdrop-blur-sm shadow-sm">
+            <div className="font-semibold">3) Resultado</div>
+            {videoUrl ? (
+              <div className="mt-2 text-sm text-slate-600">
+                Vídeo listo (ejemplo): <code>{videoUrl}</code>
+              </div>
+            ) : (
+              <div className="mt-2 text-sm text-slate-600">Renderizando…</div>
+            )}
+          </div>
+        )}
+      </section>
+
+      {/* Precios */}
+      <section id="precios" className="max-w-6xl mx-auto px-4 py-12">
+        <h3 className="text-2xl font-semibold">Precios </h3>
+        <div className="mt-4 grid md:grid-cols-3 gap-4">
           {[
             {
-              title: "1. Pega tus apuntes",
-              desc: "Usa el campo de texto o sube un archivo.",
+              title: "Gratis",
+              price: "0 €/mes",
+              bullets: ["1 vídeo corto/semana", "Marca de agua", "Resolución 720p"],
             },
             {
-              title: "2. Elige opciones",
-              desc: "Asignatura, dificultad y tono. Sin eso, el botón se desactiva.",
+              title: "Estudiante",
+              price: "7,99 €/mes",
+              bullets: ["Hasta 20 vídeos/mes", "1080p sin marca de agua", "Plantillas pizarra + subtítulos"],
             },
             {
-              title: "3. Mensaje y vídeo",
-              desc: "Ves el mensaje del profesor y, si quieres, generas un vídeo.",
+              title: "Pro (docente)",
+              price: "19,99 €/mes",
+              bullets: ["Hasta 100 vídeos/mes", "Packs por grupos", "Exportación avanzada"],
             },
-          ].map((c) => (
-            <div
-              key={c.title}
-              className="rounded-2xl p-6 bg-white/70 dark:bg-white/5 border border-black/5 dark:border-white/10 shadow"
-            >
-              <h3 className="font-semibold">{c.title}</h3>
-              <p className="mt-2 opacity-80">{c.desc}</p>
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function ExampleForm() {
-  const [notes, setNotes] = useState("");
-  const [subject, setSubject] = useState<string>("");
-  const [level, setLevel] = useState<Level | "">("");
-  const [tone, setTone] = useState<Tone | "">("");
-  const [autoVideo, setAutoVideo] = useState(true);
-  const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState<string>("");
-  const [error, setError] = useState<string>("");
-
-  const canGenerate = useMemo(() => {
-    const hasNotes = notes.trim().length > 0;
-    return hasNotes && !!subject && !!level && !!tone;
-  }, [notes, subject, level, tone]);
-
-  const quotaOk = useMemo(() => {
-    try {
-      return canUseFree();
-    } catch {
-      return true; // Por si localStorage no está disponible
-    }
-  }, [notes, subject, level, tone]);
-
-  const handleGenerateMessage = async () => {
-    setError("");
-    if (!canGenerate) return;
-    if (!quotaOk) {
-      setError("Has usado tu mensaje gratis esta semana. Suscríbete para seguir generando.");
-      return;
-    }
-    setLoading(true);
-    await new Promise((r) => setTimeout(r, 500));
-    const msg = buildProfessorMessage({
-      notes,
-      subject,
-      level: level as Level,
-      tone: tone as Tone,
-    });
-    setMessage(msg);
-    markUsed(); // Marca consumo gratis
-    setLoading(false);
-    if (autoVideo) {
-      handleGenerateVideo();
-    }
-  };
-
-  const handleGenerateVideo = () => {
-    alert("🎬 Vídeo generado (mock).");
-  };
-
-  const baseSelect =
-    "rounded-xl p-2 bg-white/70 dark:bg-white/5 border border-black/5 dark:border-white/10 text-gray-500 has-[option:checked]:text-gray-900 dark:has-[option:checked]:text-white";
-
-  return (
-    <div className="space-y-4">
-      <textarea
-        className="w-full h-40 rounded-xl p-3 bg-white/70 dark:bg-white/5 border border-black/5 dark:border-white/10 outline-none"
-        placeholder="Pega aquí tus apuntes…"
-        value={notes}
-        onChange={(e) => setNotes(e.target.value)}
-      />
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-        <select
-          className={baseSelect}
-          value={subject}
-          onChange={(e) => setSubject(e.target.value)}
-        >
-          <option value="" disabled>
-            Asignatura (elige)
-          </option>
-          <option>Matemáticas</option>
-          <option>Física</option>
-          <option>Química</option>
-          <option>Historia</option>
-          <option>Lengua</option>
-          <option>Biología</option>
-        </select>
-        <select
-          className={baseSelect}
-          value={level}
-          onChange={(e) => setLevel(e.target.value as Level)}
-        >
-          <option value="" disabled>
-            Dificultad (elige)
-          </option>
-          <option value="Fácil">Fácil</option>
-          <option value="Media">Media</option>
-          <option value="Difícil">Difícil</option>
-        </select>
-        <select
-          className={baseSelect}
-          value={tone}
-          onChange={(e) => setTone(e.target.value as Tone)}
-        >
-          <option value="" disabled>
-            Tono (elige)
-          </option>
-          <option value="Amable">Amable</option>
-          <option value="Motivador">Motivador</option>
-          <option value="Serio">Serio</option>
-        </select>
-      </div>
-
-      <label className="flex items-center gap-2 text-sm opacity-80">
-        <input
-          type="checkbox"
-          checked={autoVideo}
-          onChange={(e) => setAutoVideo(e.target.checked)}
-        />
-        Generar vídeo automáticamente tras el mensaje
-      </label>
-
-      {!!error && (
-        <div className="rounded-xl p-3 border border-red-500/30 bg-red-500/10 text-red-700 dark:text-red-300">
-          {error}
-        </div>
-      )}
-
-      <div className="flex flex-wrap items-center gap-3">
-        <button
-          className="rounded-xl px-4 py-2 font-medium bg-sky-600 text-white hover:bg-sky-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
-          onClick={handleGenerateMessage}
-          disabled={!canGenerate || loading}
-          aria-disabled={!canGenerate || loading}
-        >
-          {loading ? "Generando…" : "Mostrar mensaje del profesor"}
-        </button>
-        <button
-          className="rounded-xl px-4 py-2 font-medium bg-white/70 dark:bg-white/5 border border-black/5 dark:border-white/10 hover:bg-white/90 transition disabled:opacity-50 disabled:cursor-not-allowed"
-          onClick={handleGenerateVideo}
-          disabled={!message}
-        >
-          Generar vídeo
-        </button>
-      </div>
-
-      {message && (
-        <div className="rounded-2xl p-4 bg-white/70 dark:bg-white/5 border border-black/5 dark:border-white/10 whitespace-pre-wrap">
-          {message}
-        </div>
-      )}
-    </div>
-  );
-}
-
-function ExampleSection() {
-  return (
-    <section id="ejemplo" className="scroll-mt-24">
-      <div className="max-w-6xl mx-auto px-4 py-16">
-        <div className="flex items-start justify-between gap-4">
-          <h2 className="text-2xl sm:text-4xl font-bold">Ejemplo</h2>
-          <span className="text-sm opacity-70">
-            Gratis: 1 mensaje/semana
-          </span>
-        </div>
-        <div className="mt-6 rounded-3xl p-6 bg-white/70 dark:bg-white/5 border border-black/5 dark:border-white/10 shadow">
-          <ExampleForm />
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function Prices() {
-  const plans = [
-    {
-      name: "Gratis",
-      price: "0 €",
-      features: ["1 mensaje/semana", "Generación de vídeo de prueba", "Soporte básico"],
-      cta: "Empieza gratis",
-      tone: "free" as const,
-    },
-    {
-      name: "Estudiante",
-      price: "4,99 € / mes",
-      features: ["Mensajes ilimitados", "Vídeos HD", "Prioridad en cola"],
-      cta: "Suscribirme",
-      tone: "primary" as const,
-    },
-    {
-      name: "Pro",
-      price: "12,99 € / mes",
-      features: ["Todo Estudiante", "Exportaciones avanzadas", "Soporte prioritario"],
-      cta: "Ir a Pro",
-      tone: "secondary" as const,
-    },
-  ];
-
-  return (
-    <section id="precios" className="scroll-mt-24">
-      <div className="max-w-6xl mx-auto px-4 py-16">
-        <h2 className="text-2xl sm:text-4xl font-bold">Precios</h2>
-        <div className="mt-8 grid md:grid-cols-3 gap-6">
-          {plans.map((p) => (
-            <div
-              key={p.name}
-              className={`rounded-3xl p-6 border shadow bg-white/70 dark:bg-white/5 border-black/5 dark:border-white/10`}
-            >
-              <h3 className="text-xl font-semibold">{p.name}</h3>
-              <p className="mt-2 text-2xl font-extrabold">{p.price}</p>
-              <ul className="mt-4 space-y-2 opacity-90">
-                {p.features.map((f) => (
-                  <li key={f} className="flex items-start gap-2">
-                    <span>✔️</span>
-                    <span>{f}</span>
-                  </li>
+          ].map((p) => (
+            <div key={p.title} className="p-5 rounded-2xl border bg-white/80 backdrop-blur-sm shadow-sm">
+              <div className="font-semibold">{p.title}</div>
+              <div className="text-2xl mt-2">{p.price}</div>
+              <ul className="mt-3 text-sm space-y-1">
+                {p.bullets.map((b) => (
+                  <li key={b}>• {b}</li>
                 ))}
               </ul>
-              <button
-                className={`mt-6 w-full rounded-xl px-4 py-2 font-medium transition ${
-                  p.tone === "primary"
-                    ? "bg-sky-600 text-white hover:bg-sky-700"
-                    : p.tone === "secondary"
-                    ? "bg-slate-800 text-white hover:bg-slate-900"
-                    : "bg-white/70 dark:bg-white/10 border border-black/5 dark:border-white/10 hover:bg-white/90"
-                }`}
-                onClick={() => alert(`Checkout mock: ${p.name}`)}
-              >
-                {p.cta}
+              <button className="mt-4 w-full px-4 py-2 rounded-xl bg-blue-600 text-white hover:bg-blue-700">
+                Elegir plan
               </button>
             </div>
           ))}
         </div>
-      </div>
-    </section>
-  );
-}
+      </section>
 
-function FAQ() {
-  const faqs = [
-    {
-      q: "¿Qué hace exactamente el ejemplo?",
-      a: "Genera un mensaje del profesor a partir de tus apuntes y opciones (asignatura, dificultad y tono).",
-    },
-    {
-      q: "¿El vídeo es real?",
-      a: "De momento es un mock de resultado. En planes de pago habrá vídeo real con más opciones.",
-    },
-    {
-      q: "¿Por qué el botón a veces está desactivado?",
-      a: "Necesitas pegar apuntes y elegir asignatura, dificultad y tono.",
-    },
-    {
-      q: "¿Hay límite en el plan gratis?",
-      a: "Sí, 1 mensaje por semana (luego puedes suscribirte).",
-    },
-    {
-      q: "¿Puedo usarlo en móvil?",
-      a: "Sí, está optimizado para pantallas pequeñas y tema oscuro.",
-    },
-  ];
-  return (
-    <section id="faq" className="scroll-mt-24">
-      <div className="max-w-6xl mx-auto px-4 py-16">
-        <h2 className="text-2xl sm:text-4xl font-bold">Preguntas frecuentes</h2>
-        <div className="mt-6 divide-y divide-black/5 dark:divide-white/10 rounded-2xl border border-black/5 dark:border-white/10 bg-white/70 dark:bg-white/5 overflow-hidden">
-          {faqs.map((f, i) => (
-            <details key={f.q} className="group open:bg-white/80 dark:open:bg-white/10 p-4">
-              <summary className="cursor-pointer font-medium">
-                {i + 1}. {f.q}
-              </summary>
-              <p className="mt-2 opacity-80">{f.a}</p>
-            </details>
-          ))}
+      {/* Preguntas frecuentes */}
+      <section id="preguntas" className="max-w-6xl mx-auto px-4 py-12">
+        <h3 className="text-2xl font-semibold">Preguntas frecuentes</h3>
+        <div className="mt-4 space-y-3">
+          <details className="p-4 rounded-2xl border bg-white/80 backdrop-blur-sm shadow-sm">
+            <summary className="cursor-pointer font-medium">¿Los vídeos son automáticos?</summary>
+            <p className="mt-2 text-sm text-slate-600">
+              En este ejemplo solo mostramos la interfaz y el mensaje del profesor. El render de vídeo se añadirá más adelante.
+            </p>
+          </details>
+
+          <details className="p-4 rounded-2xl border bg-white/80 backdrop-blur-sm shadow-sm">
+            <summary className="cursor-pointer font-medium">¿Puedo usar mis propios apuntes?</summary>
+            <p className="mt-2 text-sm text-slate-600">Sí, pega tu texto o súbelo como archivo.</p>
+          </details>
+
+          {/* Nuevas preguntas */}
+          <details className="p-4 rounded-2xl border bg-white/80 backdrop-blur-sm shadow-sm">
+            <summary className="cursor-pointer font-medium">¿Qué formatos de archivo admite?</summary>
+            <p className="mt-2 text-sm text-slate-600">
+              En este ejemplo trabajamos con texto pegado. Próximamente añadiremos PDF y DOCX.
+            </p>
+          </details>
+
+          <details className="p-4 rounded-2xl border bg-white/80 backdrop-blur-sm shadow-sm">
+            <summary className="cursor-pointer font-medium">¿Cuánto tarda en generarse un vídeo?</summary>
+            <p className="mt-2 text-sm text-slate-600">
+              El mensaje aparece en segundos. El vídeo final puede tardar 1–3 minutos según la cola de render.
+            </p>
+          </details>
+
+          <details className="p-4 rounded-2xl border bg-white/80 backdrop-blur-sm shadow-sm">
+            <summary className="cursor-pointer font-medium">¿Funciona en más idiomas?</summary>
+            <p className="mt-2 text-sm text-slate-600">
+              Sí, el mensaje también funciona en francés. Las voces y subtítulos se añadirán en próximas versiones.
+            </p>
+          </details>
         </div>
-      </div>
-    </section>
-  );
-}
+      </section>
 
-export default function App() {
-  // Para el scroll suave si tu Tailwind base no lo incluye
-  useEffect(() => {
-    document.documentElement.style.scrollBehavior = "smooth";
-  }, []);
-
-  // Truco: ancla fantasma superior para #top
-  const topRef = useRef<HTMLDivElement | null>(null);
-
-  return (
-    <div className="min-h-screen bg-white dark:bg-black text-slate-900 dark:text-slate-100">
-      <div ref={topRef} id="top" />
-      <Navbar />
-      <Hero />
-      <main>
-        <HowItWorks />
-        <ExampleSection />
-        <Prices />
-        <FAQ />
-      </main>
-      <footer className="border-t border-black/5 dark:border-white/10">
-        <div className="max-w-6xl mx-auto px-4 py-10 text-sm opacity-70">
-          © {new Date().getFullYear()} Profesor Albert. Todos los derechos reservados.
+      {/* Footer */}
+      <footer className="border-t border-slate-200 py-10 mt-6">
+        <div className="max-w-6xl mx-auto px-4 text-sm text-slate-500 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+          <p>© {new Date().getFullYear()} Profesor Albert · Prototipo UI</p>
+          <div className="flex gap-4">
+            <a href="#" className="hover:text-blue-600">Inicio</a>
+            <a href="#ejemplo" className="hover:text-blue-600">Ejemplo</a>
+            <a href="mailto:contacto@tudominio.com" className="hover:text-blue-600">Contacto</a>
+          </div>
         </div>
       </footer>
-    </div>
+    </>
   );
 }
