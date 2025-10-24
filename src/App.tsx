@@ -81,7 +81,7 @@ export default function App() {
   const [autoVideo, setAutoVideo] = useState(true);
  const [theme, setTheme] = useState<"light" | "dark">(() => {
   const saved = localStorage.getItem("theme");
-  return saved === "dark" ? "dark" : "light"; // por defecto: claro
+  return saved === "dark" ? "dark" : "light";
 });
   const [mobileOpen, setMobileOpen] = useState(false);
   const [error, setError] = useState<string>("");
