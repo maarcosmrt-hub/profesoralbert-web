@@ -1,5 +1,5 @@
-// src/App.tsx 
-import React, { useState } from "react";
+// src/App.tsx
+import React, { useMemo, useState } from "react";
 
 export default function App() {
   const [step, setStep] = useState(1);
@@ -14,6 +14,12 @@ export default function App() {
   const [videoUrl, setVideoUrl] = useState("");
   const [autoVideo, setAutoVideo] = useState(true);
 
+  // ✅ NUEVO: requisito mínimo para habilitar el botón
+  const canGenerate = useMemo(() => {
+    const hasNotes = rawNotes.trim().length > 0;
+    return hasNotes && !!subject && !!level && !!tone;
+  }, [rawNotes, subject, level, tone]);
+
   const demoExplain = (text: string) => {
     if (!text.trim()) return "";
     const base = text.replace(/\s+/g, " ").slice(0, 300).trim();
@@ -27,141 +33,146 @@ Explicación paso a paso:
 3) Mini-ejercicio guiado en la pizarra.
 4) Resumen en una frase.`;
   };
-// -------- helpers de mensaje dinámico --------
-function pick<T>(arr: T[]) { return arr[Math.floor(Math.random() * arr.length)]; }
 
-function normalize(s: string) {
-  return s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
-}
+  // -------- helpers de mensaje dinámico --------
+  function pick<T>(arr: T[]) { return arr[Math.floor(Math.random() * Math.max(1, arr.length))]; }
 
-// Saca 2–3 “temas” simples de los apuntes (muy básico).
-function extractTopics(text: string, max = 3) {
-  const stop = new Set([
-    "el","la","los","las","un","una","unas","unos","de","del","y","o","u","en","para","por","con","sin",
-    "que","como","es","son","se","al","lo","su","sus","más","menos","muy","tambien","también","pero",
-    "si","no","a","entre","sobre","hasta","desde","cuando","donde","dónde","qué","cuál","cual","porque","porqué",
-  ]);
-  const words = normalize(text)
-    .replace(/[^a-záéíóúüñ0-9\s-]/gi, " ")
-    .split(/\s+/)
-    .filter(w => w.length > 3 && !stop.has(w));
-  const freq: Record<string, number> = {};
-  for (const w of words) freq[w] = (freq[w] || 0) + 1;
-  const top = Object.entries(freq).sort((a,b)=>b[1]-a[1]).slice(0, max).map(([w])=>w);
-  // “Bonito”
-  return top.map(t => t[0].toUpperCase() + t.slice(1));
-}
+  function normalize(s: string) {
+    return s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+  }
 
-function openings(tone: string, subject: string, level: string) {
-  const subj = subject || "la asignatura que elijas";
-  const lev  = level   || "el nivel que elijas";
-  const base = `Hola, soy el Profesor Albert. Hoy trabajaremos ${subj.toLowerCase()} a nivel ${lev}.`;
-  const map: Record<string,string[]> = {
-    "formal y académico": [
-      `${base} Comenzaremos con un marco conceptual claro para que la explicación sea rigurosa.`,
-      `${base} Presentaré los puntos clave de forma ordenada para facilitar la comprensión.`,
-    ],
-    "divertido y cercano": [
-      `${base} Tranquilo, esto va a ser más fácil de lo que parece 😉`,
-      `${base} Vamos paso a paso y con ejemplos sencillos, ya verás.`,
-    ],
-    "claro y motivador": [
-      `${base} Lo haremos simple y directo, sin enredos.`,
-      `${base} Te acompaño con una explicación clara, con pizarra y ejemplo.`,
-    ],
-  };
-  return pick(map[tone] || map["claro y motivador"]);
-}
+  // Saca 2–3 “temas” simples de los apuntes (muy básico).
+  function extractTopics(text: string, max = 3) {
+    const stop = new Set([
+      "el","la","los","las","un","una","unas","unos","de","del","y","o","u","en","para","por","con","sin",
+      "que","como","es","son","se","al","lo","su","sus","más","menos","muy","tambien","también","pero",
+      "si","no","a","entre","sobre","hasta","desde","cuando","donde","dónde","qué","cuál","cual","porque","porqué",
+    ]);
+    const words = normalize(text)
+      .replace(/[^a-záéíóúüñ0-9\s-]/gi, " ")
+      .split(/\s+/)
+      .filter(w => w.length > 3 && !stop.has(w));
+    const freq: Record<string, number> = {};
+    for (const w of words) freq[w] = (freq[w] || 0) + 1;
+    const top = Object.entries(freq).sort((a,b)=>b[1]-a[1]).slice(0, max).map(([w])=>w);
+    // “Bonito”
+    return top.map(t => t[0].toUpperCase() + t.slice(1));
+  }
 
-function planLine(topics: string[]) {
-  if (topics.length >= 2) {
+  function openings(tone: string, subject: string, level: string) {
+    const subj = subject || "la asignatura que elijas";
+    const lev  = level   || "el nivel que elijas";
+    const base = `Hola, soy el Profesor Albert. Hoy trabajaremos ${subj.toLowerCase()} a nivel ${lev}.`;
+    const map: Record<string,string[]> = {
+      "formal y académico": [
+        `${base} Comenzaremos con un marco conceptual claro para que la explicación sea rigurosa.`,
+        `${base} Presentaré los puntos clave de forma ordenada para facilitar la comprensión.`,
+      ],
+      "divertido y cercano": [
+        `${base} Tranquilo, esto va a ser más fácil de lo que parece 😉`,
+        `${base} Vamos paso a paso y con ejemplos sencillos, ya verás.`,
+      ],
+      "claro y motivador": [
+        `${base} Lo haremos simple y directo, sin enredos.`,
+        `${base} Te acompaño con una explicación clara, con pizarra y ejemplo.`,
+      ],
+    };
+    return pick(map[tone] || map["claro y motivador"]);
+  }
+
+  function planLine(topics: string[]) {
+    if (topics.length >= 2) {
+      return pick([
+        `Para empezar, veremos ${topics[0]}, y después aplicaremos ${topics[1]} con un ejemplo.`,
+        `Primero entenderemos ${topics[0]}; luego conectaremos con **${topics[1]}** paso a paso.`,
+        `Iniciaremos con ${topics[0]} y continuaremos con ${topics[1]} para fijar ideas.`,
+      ]);
+    }
+    if (topics.length === 1) {
+      return pick([
+        `Para empezar, vamos a ver ${topics[0]} y practicarlo con un ejercicio breve.`,
+        `Arrancamos por ${topics[0]} y lo afianzamos con un ejemplo guiado.`,
+      ]);
+    }
     return pick([
-      `Para empezar, veremos ${topics[0]}, y después aplicaremos ${topics[1]} con un ejemplo.`,
-      `Primero entenderemos ${topics[0]}; luego conectaremos con **${topics[1]}** paso a paso.`,
-      `Iniciaremos con ${topics[0]} y continuaremos con ${topics[1]} para fijar ideas.`,
+      "Para empezar, veremos la idea principal y la llevaremos a un ejemplo claro.",
+      "Comenzaremos con una definición sencilla y la fijaremos con un ejemplo guiado.",
     ]);
   }
-  if (topics.length === 1) {
+
+  function reassurance(tone: string) {
+    const map: Record<string,string[]> = {
+      "formal y académico": [
+        "Al finalizar, dispondrás de una síntesis ordenada para repasar.",
+        "Cerraremos con un breve resumen para consolidar el aprendizaje.",
+      ],
+      "divertido y cercano": [
+        "Ya verás que sale solo, ¡lo hacemos juntos!",
+        "Verás que no era tan complicado 😉",
+      ],
+      "claro y motivador": [
+        "Vas a ver que es más fácil de lo que parece.",
+        "En pocos minutos, lo tendrás claro.",
+      ],
+    };
+    return pick(map[tone] || map["claro y motivador"]);
+  }
+
+  function ctaLine() {
     return pick([
-      `Para empezar, vamos a ver ${topics[0]} y practicarlo con un ejercicio breve.`,
-      `Arrancamos por ${topics[0]} y lo afianzamos con un ejemplo guiado.`,
+      "Cuando quieras, pulsa abajo para generar el vídeo.",
+      "Listo: ahora puedes crear el vídeo con un clic.",
+      "¿Lo vemos en pizarra? Pulsa para generar el vídeo.",
     ]);
   }
-  return pick([
-    "Para empezar, veremos la idea principal y la llevaremos a un ejemplo claro.",
-    "Comenzaremos con una definición sencilla y la fijaremos con un ejemplo guiado.",
-  ]);
-}
 
-function reassurance(tone: string) {
-  const map: Record<string,string[]> = {
-    "formal y académico": [
-      "Al finalizar, dispondrás de una síntesis ordenada para repasar.",
-      "Cerraremos con un breve resumen para consolidar el aprendizaje.",
-    ],
-    "divertido y cercano": [
-      "Ya verás que sale solo, ¡lo hacemos juntos!",
-      "Verás que no era tan complicado 😉",
-    ],
-    "claro y motivador": [
-      "Vas a ver que es más fácil de lo que parece.",
-      "En pocos minutos, lo tendrás claro.",
-    ],
-  };
-  return pick(map[tone] || map["claro y motivador"]);
-}
+  function buildProfessorMessage(subject: string, level: string, tone: string, raw: string) {
+    const intro = openings(tone, subject, level);
+    const topics = extractTopics(raw, 3);
+    const plan = planLine(topics);
+    const extra = reassurance(tone);
+    const cta = ctaLine();
 
-function ctaLine() {
-  return pick([
-    "Cuando quieras, pulsa abajo para generar el vídeo.",
-    "Listo: ahora puedes crear el vídeo con un clic.",
-    "¿Lo vemos en pizarra? Pulsa para generar el vídeo.",
-  ]);
-}
+    // Bonus: si hay texto pegado, añadimos una “idea principal” breve.
+    const idea = raw.trim()
+      ? `\n\nIdea principal: ${raw.replace(/\s+/g, " ").slice(0, 160).trim()}…`
+      : "";
 
-function buildProfessorMessage(subject: string, level: string, tone: string, raw: string) {
-  const intro = openings(tone, subject, level);
-  const topics = extractTopics(raw, 3);
-  const plan = planLine(topics);
-  const extra = reassurance(tone);
-  const cta = ctaLine();
-
-  // Bonus: si hay texto pegado, añadimos una “idea principal” breve.
-  const idea = raw.trim()
-    ? `\n\nIdea principal: ${raw.replace(/\s+/g, " ").slice(0, 160).trim()}…`
-    : "";
-
-  return `${intro}
+    return `${intro}
 
 ${plan}${idea}
 
 ${extra} ${cta}`;
-}
-// -------- fin helpers --------
-
- const handleGenerateScript = async () => {
-  setLoading(true);
-  await new Promise((r) => setTimeout(r, 700));
-
-  const s = buildProfessorMessage(
-    subject,
-    level,
-    (tone || "claro y motivador"),
-    rawNotes
-  );
-
-  setScript(s);
-  setLoading(false);
-  setStep(2);
-
-  if (autoVideo) {
-    setTimeout(() => {
-      handleGenerateVideo();
-    }, 300);
   }
-};
-  
+  // -------- fin helpers --------
+
+  const handleGenerateScript = async () => {
+    // ✅ Pequeña guardia
+    if (!canGenerate || loading) return;
+
+    setLoading(true);
+    await new Promise((r) => setTimeout(r, 700));
+
+    const s = buildProfessorMessage(
+      subject,
+      level,
+      (tone || "claro y motivador"),
+      rawNotes
+    );
+
+    setScript(s);
+    setLoading(false);
+    setStep(2);
+
+    if (autoVideo) {
+      setTimeout(() => {
+        handleGenerateVideo();
+      }, 300);
+    }
+  };
+
   const handleGenerateVideo = async () => {
+    if (loading) return;
     setLoading(true);
     setVideoUrl("");
     await new Promise((r) => setTimeout(r, 1200));
@@ -215,7 +226,7 @@ ${extra} ${cta}`;
               Convierte tus apuntes en{" "}
               <span className="text-blue-600">vídeos explicativos</span> con un profesor IA
             </h2>
-            <p className="mt-4 text-slate-600">
+            <p className="mt-4 text-slate-600"></p>
             {/* CTA */}
             <div className="mt-4 flex gap-3">
               <a href="#ejemplo" className="px-4 py-2 rounded-xl bg-blue-600 text-white hover:bg-blue-700 shadow">
@@ -313,44 +324,44 @@ ${extra} ${cta}`;
 
           {/* Selects con placeholder gris */}
           <div className="mt-3 grid sm:grid-cols-3 gap-3">
-           {/* ASIGNATURA */}
-<select
-  value={subject}
-  onChange={(e) => setSubject(e.target.value)}
-  className={`rounded-xl border p-2 ${subject ? "text-slate-900" : "text-slate-400"}`}
->
-  <option value="" disabled className="text-slate-400">Asignatura</option>
-  <option className="!text-slate-900">Matemáticas</option>
-  <option className="!text-slate-900">Física</option>
-  <option className="!text-slate-900">Química</option>
-  <option className="!text-slate-900">Historia</option>
-  <option className="!text-slate-900">Lengua</option>
-</select>
+            {/* ASIGNATURA */}
+            <select
+              value={subject}
+              onChange={(e) => setSubject(e.target.value)}
+              className={`rounded-xl border p-2 ${subject ? "text-slate-900" : "text-slate-400"}`}
+            >
+              <option value="" disabled className="text-slate-400">Asignatura</option>
+              <option className="!text-slate-900">Matemáticas</option>
+              <option className="!text-slate-900">Física</option>
+              <option className="!text-slate-900">Química</option>
+              <option className="!text-slate-900">Historia</option>
+              <option className="!text-slate-900">Lengua</option>
+            </select>
 
-{/* DIFICULTAD */}
-<select
-  value={level}
-  onChange={(e) => setLevel(e.target.value)}
-  className={`rounded-xl border p-2 ${level ? "text-slate-900" : "text-slate-400"}`}
->
-  <option value="" disabled className="text-slate-400">Dificultad</option>
-  <option className="!text-slate-900">Primaria</option>
-  <option className="!text-slate-900">ESO</option>
-  <option className="!text-slate-900">Bachillerato</option>
-  <option className="!text-slate-900">Universidad</option>
-</select>
+            {/* DIFICULTAD */}
+            <select
+              value={level}
+              onChange={(e) => setLevel(e.target.value)}
+              className={`rounded-xl border p-2 ${level ? "text-slate-900" : "text-slate-400"}`}
+            >
+              <option value="" disabled className="text-slate-400">Dificultad</option>
+              <option className="!text-slate-900">Primaria</option>
+              <option className="!text-slate-900">ESO</option>
+              <option className="!text-slate-900">Bachillerato</option>
+              <option className="!text-slate-900">Universidad</option>
+            </select>
 
-{/* TONO */}
-<select
-  value={tone}
-  onChange={(e) => setTone(e.target.value)}
-  className={`rounded-xl border p-2 ${tone ? "text-slate-900" : "text-slate-400"}`}
->
-  <option value="" disabled className="text-slate-400">Tono</option>
-  <option className="!text-slate-900">claro y motivador</option>
-  <option className="!text-slate-900">formal y académico</option>
-  <option className="!text-slate-900">divertido y cercano</option>
-</select>
+            {/* TONO */}
+            <select
+              value={tone}
+              onChange={(e) => setTone(e.target.value)}
+              className={`rounded-xl border p-2 ${tone ? "text-slate-900" : "text-slate-400"}`}
+            >
+              <option value="" disabled className="text-slate-400">Tono</option>
+              <option className="!text-slate-900">claro y motivador</option>
+              <option className="!text-slate-900">formal y académico</option>
+              <option className="!text-slate-900">divertido y cercano</option>
+            </select>
           </div>
 
           <label className="mt-2 flex items-center gap-2 text-sm text-slate-600">
@@ -365,9 +376,16 @@ ${extra} ${cta}`;
           <div className="mt-4">
             <button
               onClick={handleGenerateScript}
-              disabled={loading}
-              className="px-4 py-2 rounded-xl bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-60"
-              title={loading ? "Preparando…" : undefined}
+              disabled={!canGenerate || loading}
+              aria-disabled={!canGenerate || loading}
+              className="px-4 py-2 rounded-xl bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-60 disabled:cursor-not-allowed"
+              title={
+                loading
+                  ? "Preparando…"
+                  : !canGenerate
+                  ? "Pega apuntes y elige Asignatura, Dificultad y Tono"
+                  : undefined
+              }
             >
               {loading ? "Preparando…" : "Mostrar mensaje del profesor"}
             </button>
