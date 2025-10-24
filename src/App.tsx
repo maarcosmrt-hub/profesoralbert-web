@@ -79,11 +79,10 @@ export default function App() {
   const [loading, setLoading] = useState(false);
   const [videoUrl, setVideoUrl] = useState("");
   const [autoVideo, setAutoVideo] = useState(true);
-  const [theme, setTheme] = useState<"light" | "dark">(() => {
-    const saved = localStorage.getItem("theme");
-    if (saved === "light" || saved === "dark") return saved;
-    return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
-  });
+ const [theme, setTheme] = useState<"light" | "dark">(() => {
+  const saved = localStorage.getItem("theme");
+  return saved === "dark" ? "dark" : "light"; // por defecto: claro
+});
   const [mobileOpen, setMobileOpen] = useState(false);
   const [error, setError] = useState<string>("");
 
