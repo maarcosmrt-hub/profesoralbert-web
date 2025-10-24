@@ -36,16 +36,15 @@
     <meta name="theme-color" content="#0b63d1" />
 
     <!-- Evitar flash de tema: aplica 'dark' antes de hidratar -->
-    <script>
-      (function () {
-        try {
-          var saved = localStorage.getItem("theme");
-          var prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-          var theme = saved === "light" || saved === "dark" ? saved : (prefersDark ? "dark" : "light");
-          if (theme === "dark") document.documentElement.classList.add("dark");
-        } catch (e) {}
-      })();
-    </script>
+<script>
+  (function () {
+    try {
+      var saved = localStorage.getItem("theme");
+      if (saved === "dark") document.documentElement.classList.add("dark");
+      // si no hay nada guardado: claro por defecto
+    } catch (e) {}
+  })();
+</script>
   </head>
   <body class="bg-white text-slate-900 dark:bg-black dark:text-slate-100">
     <noscript>Necesitas habilitar JavaScript para usar esta app.</noscript>
