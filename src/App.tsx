@@ -69,6 +69,9 @@ function useScrolledShadow(offset = 8) {
    Lógica original + mejoras
    ========================= */
 export default function App() {
+  // Estado del tema (claro por defecto)
+const [theme, setTheme] = useState<"light" | "dark">(() => {
+  const saved = localStorage.getItem("theme");
   const [step, setStep] = useState(1);
   const [inputMode, setInputMode] = useState<"paste" | "file">("paste");
   const [rawNotes, setRawNotes] = useState("");
