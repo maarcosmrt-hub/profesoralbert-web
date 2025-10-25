@@ -1,62 +1,36 @@
+<!-- public/index.html -->
 <!DOCTYPE html>
 <html lang="es">
-  <script>
-  // Fuerza tema claro SIEMPRE
-  localStorage.setItem('theme','light');
-  document.documentElement.classList.remove('dark');
-</script>
   <head>
-    
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <title>Profesor Albert – Tu profe IA con pizarra</title>
 
-    <!-- Preload imagen principal para nitidez y LCP -->
-    <link rel="preload" as="image" href="/albert.png" imagesrcset="/albert.png 1x" />
-
-    <!-- Descripción (sin viñetas) -->
+    <!-- Descripción -->
     <meta name="description" content="Convierte tus apuntes en vídeos explicativos con el Profesor Albert, tu profe IA." />
 
-    <!-- Favicon -->
-    <link rel="icon" href="/favicon.ico" />
-    <link rel="alternate icon" href="/albert.png" />
-
-    <!-- OG / Twitter -->
+    <!-- OG / Twitter (puedes ajustar la URL) -->
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="Profesor Albert" />
     <meta property="og:title" content="Profesor Albert – Tu profe IA con pizarra" />
     <meta property="og:description" content="Convierte tus apuntes en vídeos explicativos con el Profesor Albert." />
     <meta property="og:url" content="https://profesoralbert.vercel.app" />
     <meta property="og:image" content="https://profesoralbert.vercel.app/albert_og.png?v=3" />
-    <meta property="og:image:secure_url" content="https://profesoralbert.vercel.app/albert_og.png?v=3" />
-    <meta property="og:image:width" content="1200" />
-    <meta property="og:image:height" content="630" />
-
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="Profesor Albert – Tu profe IA con pizarra" />
-    <meta name="twitter:description" content="Convierte tus apuntes en vídeos explicativos con el Profesor Albert." />
-    <meta name="twitter:image" content="https://profesoralbert.vercel.app/albert_og.png?v=3" />
 
-    <!-- Color de la UI -->
-    <meta name="theme-color" content="#0b63d1" />
+    <!-- Fuerza tema CLARO siempre: quita 'dark' y limpia preferencia -->
+    <script>
+      try {
+        localStorage.removeItem('theme');
+        document.documentElement.classList.remove('dark');
+      } catch (e) {}
+    </script>
 
-    <!-- Evitar flash de tema: aplica 'dark' antes de hidratar -->
-<script>
-  (function () {
-    try {
-      var saved = localStorage.getItem("theme");
-      if (saved === "dark") document.documentElement.classList.add("dark");
-      else document.documentElement.classList.remove("dark");
-    } catch (e) {}
-  })();
-</script>
+    <style>html{scroll-behavior:smooth;}</style>
   </head>
-  <body style="background:#fff; color:#0f172a">
+  <body class="bg-white text-slate-900">
     <noscript>Necesitas habilitar JavaScript para usar esta app.</noscript>
     <div id="root"></div>
-    <style>
-      html{ scroll-behavior:smooth; }
-    </style>
   </body>
 </html>
