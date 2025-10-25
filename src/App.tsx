@@ -422,7 +422,7 @@ export default function App() {
           {[
             {title:"Gratis", price:"0 €/mes", bullets:["1 vídeo corto/semana","Marca de agua","Resolución 720p"], tag:null},
             {title:"Estudiante", price:"7,99 €/mes", bullets:["Hasta 20 vídeos/mes","1080p sin marca de agua","Plantillas pizarra + subtítulos"], tag:"Más popular"},
-            {title:"Pro (docente)", price:"19,99 €/mes", bullets:["Hasta 100 vídeos/mes","Packs por grupos","Exportación avanzada"], tag:null},
+            {title:"Pro (docente)", price:"16,99 €/mes", bullets:["Hasta 100 vídeos/mes","Packs por grupos","Exportación avanzada"], tag:null},
           ].map((p)=>(
             <div key={p.title} className={`${card} ${lift} p-5 relative ${p.tag ? "ring-1 ring-sky-300" : ""}`}>
               {p.tag && <div className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs border border-sky-200 text-sky-700 bg-sky-50 absolute -top-2 right-4">{p.tag}</div>}
