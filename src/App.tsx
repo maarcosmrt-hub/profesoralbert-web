@@ -1,12 +1,8 @@
 // src/App.tsx
-import React, { useEffect, useMemo, useRef, useState } from "react";
-import {
-  Menu, X, Play, BookOpen, ClipboardList, Sparkles,
-  ChevronRight, Check, Info
-} from "lucide-react";
+import React, { useEffect, useMemo, useState } from "react";
+import { Menu, X, Play, BookOpen, ClipboardList, Sparkles, ChevronRight, Check, Info } from "lucide-react";
 import { motion } from "framer-motion";
 
-/* ===== Tipografía / tokens simples ===== */
 const titleCls = "font-extrabold tracking-tight";
 const h1Cls = `${titleCls} text-3xl md:text-4xl leading-tight md:leading-tight`;
 const h2Cls = `${titleCls} text-2xl md:text-3xl leading-snug md:leading-snug`;
@@ -24,7 +20,6 @@ const Skeleton = ({ className = "" }: { className?: string }) => (
   <div className={`animate-pulse bg-slate-200/70 rounded ${className}`} />
 );
 
-/* ===== Scroll spy + header sombra ===== */
 function useScrollSpy(ids: string[]) {
   const [active, setActive] = useState<string>("");
   useEffect(() => {
@@ -70,7 +65,7 @@ export default function App() {
     return hasNotes && !!subject && !!level && !!tone;
   }, [rawNotes, subject, level, tone]);
 
-  // ==== helpers de mensaje (los tuyos, compactados) ====
+  // ===== helpers de mensaje (tus originales condensados) =====
   function pick<T>(arr: T[]) { return arr[Math.floor(Math.random() * Math.max(1, arr.length))]; }
   function normalize(s: string) { return s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase(); }
   function extractTopics(text: string, max = 3) {
@@ -152,7 +147,7 @@ export default function App() {
 
   return (
     <>
-      {/* Header fijo, SIN toggle de tema */}
+      {/* Header fijo */}
       <header className={`sticky top-0 z-50 backdrop-blur bg-white/70 border-b border-slate-200/70 ${scrolled ? "shadow-sm" : ""}`}>
         <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between gap-4">
           <a href="#top" className="flex items-center gap-3">
@@ -227,7 +222,7 @@ export default function App() {
         )}
       </header>
 
-      {/* Hero claro */}
+      {/* Hero */}
       <section id="top" className="relative">
         <div className="absolute inset-0 bg-gradient-to-br from-slate-50 to-white -z-10" />
         <div className="max-w-6xl mx-auto px-4 pt-10 md:pt-14 pb-6 md:pb-8 grid md:grid-cols-2 gap-8 items-center">
@@ -415,7 +410,7 @@ export default function App() {
         )}
       </section>
 
-      {/* Precios */}
+      {/* Precios (Pro a 16,99 €/mes) */}
       <section id="precios" className="max-w-6xl mx-auto px-4 py-12">
         <h2 className={`${h2Cls}`}>Precios</h2>
         <div className="mt-6 grid md:grid-cols-3 gap-6">
