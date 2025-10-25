@@ -1,8 +1,7 @@
 // tailwind.config.js
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  // No dependemos de oscuro, pero dejamos 'class' por si en el futuro lo quieres reactivar
-  darkMode: 'class',
+  darkMode: 'class', // no usamos oscuro, pero así no se activa por sistema
   content: [
     './public/index.html',
     './src/**/*.{js,ts,jsx,tsx}',
