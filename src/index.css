@@ -1,0 +1,10 @@
+/* src/index.css */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Opcional: base clara por si acaso */
+html, body {
+  background: #ffffff;
+  color: #0f172a; /* slate-900 */
+}
