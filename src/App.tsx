@@ -154,7 +154,7 @@ export default function App() {
             <img src="/albert.png?v=3" alt="Profesor Albert" className="w-10 h-10 rounded-2xl object-cover shadow-sm" />
             <div>
               <div className="font-semibold tracking-wide">Profesor Albert</div>
-              <div className="text-xs text-slate-500">Tu profe IA que explica con pizarra</div>
+              <div className="text-xs text-slate-500">Tu profe IA personal</div>
             </div>
           </a>
 
