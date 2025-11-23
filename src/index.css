@@ -1,3 +1,6 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+/* Estilos de los <option> dentro de selects marcados con .nice-select */
+.nice-select option { color: #0f172a; }            /* negro (slate-900) */
+.nice-select option[disabled] { color: #94a3b8; }  /* gris (slate-400) */
